@@ -1,24 +1,78 @@
+from gqlspection import log
 import gqlspection
+if False:
+    from typing import Union, Optional
 
 
 class GQLSchema(object):
-    types          = None  # type: gqlspection.GQLTypes
-    query          = None  # type: gqlspection.GQLType
-    mutation       = None  # type: gqlspection.GQLType
-    _query_type    = None  # type: str
-    _mutation_type = None  # type: str
+    types          = None  # type: Optional[None, gqlspection.GQLTypes]
+    query          = None  # type: Union[None, gqlspection.GQLType, gqlspection.GQLTypeProxy]
+    mutation       = None  # type: Optional[gqlspection.GQLType]
 
-    def __init__(self, url, extra_headers=None):
-        introspection_result = self.send_request(url, extra_headers)
-        original_schema = introspection_result['data']['__schema']
+    def __init__(self, url=None, extra_headers=None, json=None, logger=None):
+        if logger:
+            log.logger = logger
 
-        self._query_type    = original_schema['queryType']['name']
-        self._mutation_type = original_schema['mutationType']['name']
+        if json:
+            if 'data' in json and '__schema' in json['data']:
+                original_schema = json['data']['__schema']
+            elif '__schema' in json:
+                original_schema = json['__schema']
+            elif 'types' in json:
+                original_schema = json
+            else:
+                raise Exception("GQLSchema: Couldn't parse JSON schema.")
+        elif url:
+            introspection_result = self.send_request(url, extra_headers)
+            original_schema = introspection_result['data']['__schema']
+        else:
+            raise Exception("GQLSchema: Provide either JSON or URL.")
 
         self.types = gqlspection.GQLTypes(self, original_schema)
 
-        self.query          = self.types[self._query_type]
-        self.mutation       = self.types[self._mutation_type]
+        self.query    = self._extract_query_type(original_schema)
+        self.mutation = self._extract_mutation_type(original_schema)
+
+    def _extract_query_type(self, schema):
+        """Get the query type name (typically 'Query').
+
+        According to GraphQL specs, this should always be present. We could easily fall back to 'Query' though, file
+        a bug report if there is a real-world need for that.
+
+            __schema {
+                queryType {
+                    name
+                }
+            }
+        """
+        if 'queryType' in schema:
+            name = schema['queryType'].get('name', False)
+            if name:
+                return gqlspection.GQLTypeProxy(name, self)
+            else:
+                raise Exception("GQLSchema: Invalid schema - queryType is null. File a bug if this happens in real "
+                                "world.")
+        else:
+            raise Exception("GQLSchema: Invalid schema - no queryType (absence of queryType is not allowed according "
+                            "to GraphQL spec, file a bug report if this happens in real world).")
+
+    def _extract_mutation_type(self, schema):
+        """Get the mutation type and return None if it has not been defined.
+
+            __schema {
+                mutationType {
+                    name
+                }
+            }
+        """
+        if 'mutationType' in schema:
+            name = schema['mutationType'].get('name', None)
+            if name:
+                return gqlspection.GQLTypeProxy(name, self)
+            else:
+                raise None
+        else:
+            return None
 
     @staticmethod
     def send_request(url, extra_headers=None, minimize=True):
@@ -48,14 +102,3 @@ class GQLSchema(object):
         else:
             field = name
         return gqlspection.GQLQuery(self.mutation, 'mutation', fields=[field])
-
-    def print_sample_queries(self):
-        for field in self.query.fields:
-            query = gqlspection.GQLQuery(self.query, 'query', fields=[field])
-
-            print("Query '%s.graphql':" % field.name)
-            query_string = self.generate_query(field)\
-                .print_query()\
-                .splitlines()
-            print('\n'.join('    ' + line for line in query_string))
-            print("")

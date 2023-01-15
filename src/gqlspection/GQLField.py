@@ -19,7 +19,7 @@ class GQLField(object):
         self.type = gqlspection.GQLTypeProxy(kind.name, schema)
         self.schema = schema
         self.description = description
-        self.args = args
+        self.args = args or gqlspection.GQLArgs(schema, {})
         self.is_deprecated = is_deprecated
         self.deprecation_reason = deprecation_reason
 
@@ -34,7 +34,7 @@ class GQLField(object):
     def from_json(field, schema):
         return GQLField(
             name=field['name'],
-            kind=gqlspection.GQLTypeKind(field['type']),
+            kind=gqlspection.GQLTypeKind.from_json(field['type']),
             schema=schema,
             description=field.get('description', ''),
             args=GQLField._wrap_args(field, schema),

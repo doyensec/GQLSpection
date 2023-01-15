@@ -34,7 +34,7 @@ setup(
     python_requires="~=2.7",
     extras_require={
         "web": ["requests"],
-        "test": ["pytest"]
+        "test": ["build", "pathlib2", "pytest", "twine"]
     },
     entry_points={
         "console_scripts": [

@@ -1,3 +1,4 @@
+from gqlspection import log
 import gqlspection
 from utils import safe_get_list
 
@@ -40,7 +41,32 @@ class GQLWrapper(gqlspection.GQLList):
 
 class GQLTypes(GQLWrapper):
     def _extract_elements(self, schema, json):
-        return (gqlspection.GQLType.from_json(t, schema) for t in safe_get_list(json, 'types'))
+        elements = []
+        scalars = set()
+        for t in safe_get_list(json, 'types'):
+            el = gqlspection.GQLType.from_json(t, schema)
+            log.info("Adding new type definition: %s", el.name)
+            elements.append(el)
+
+            if el.kind.kind == 'SCALAR':
+                scalars.add(el.kind.name)
+
+        # populate standard types if not present in supplied schema
+        for scalar in gqlspection.GQLTypeKind.builtin_scalars:
+            log.info("Adding missing default scalar: %s" % scalar)
+            if scalar not in scalars:
+                elements.append(gqlspection.GQLType(
+                    name = scalar,
+                    kind = gqlspection.GQLTypeKind(
+                        name=scalar,
+                        kind='SCALAR'
+                    ),
+                    description="Built-in scalar type.",
+                    schema=schema
+                ))
+
+        return elements
+        #return (gqlspection.GQLType.from_json(t, schema) for t in safe_get_list(json, 'types'))
 
 
 class GQLFields(GQLWrapper):

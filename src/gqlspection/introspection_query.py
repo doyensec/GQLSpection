@@ -1,10 +1,13 @@
 __documented_introspection_query = """
 query IntrospectionQuery {
     __schema {
-        # Typically query is called "Query" and mutation "Mutation", but you those can be redefined
+        # Typically query is called "Query" and mutation "Mutation", but those can be redefined.
+        # For some reason, spec does not force queryType[name] to be String!, but I don't think it can be null.
         queryType {
             name
+            }
         }
+        # 'mutationType' can be null if there are no mutations.
         mutationType {
             name
         }

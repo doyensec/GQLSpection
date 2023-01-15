@@ -1,3 +1,7 @@
+if False:
+    from typing import Optional, List
+
+
 class GQLTypeKind(object):
     """Construct a type out of GraphQL schema fragment.
 
@@ -32,31 +36,40 @@ class GQLTypeKind(object):
 
     """
     wrapping_types = ('LIST', 'NON_NULL')
-    non_wrapping_types    = ('SCALAR', 'OBJECT', 'INTERFACE', 'UNION', 'ENUM', 'INPUT_OBJECT')
-
+    non_wrapping_types = ('SCALAR', 'OBJECT', 'INTERFACE', 'UNION', 'ENUM', 'INPUT_OBJECT')
     leaf_types = ('SCALAR', 'ENUM')
+    builtin_scalars = ('Int', 'Float', 'String', 'Boolean', 'ID')
 
-    # FIXME: populate the list of built-in types defined in GraphQL spec
-    builtin_types = ()
+    # in the example above: [NON_NULL, LIST, NON_NULL]
+    modifiers = None                                             # type: Optional[List[str]]
+    # in the example above: OBJECT
+    kind = None                                                  # type: Optional[str]
+    # in the example above: 'BillingPlanV2'
+    name = None                                                  # type: Optional[str]
 
-    modifiers = None   # in the example above: [NON_NULL, LIST, NON_NULL]
-    kind = None        # in the example above: OBJECT
-    name = None        # in the example above: 'BillingPlanV2'
+    def __init__(self, name, kind, modifiers=None):
+        self.name = name
+        self.kind = kind
+        self.modifiers = modifiers or []
 
-    def __init__(self, typedef):
+    @staticmethod
+    def from_json(typedef):
         current = typedef
-        self.modifiers = []
-        while current['kind'] in self.wrapping_types:
+        modifiers = []
+        while current['kind'] in GQLTypeKind.wrapping_types:
             # iterate through intermediate modifiers (LIST and NON_NULL)
-            self.modifiers.append(current['kind'])
+            modifiers.append(current['kind'])
             current = current['ofType']
 
         # by this time all modifiers should have been parsed, make sure the result is what we expect
-        if current['kind'] not in self.non_wrapping_types:
-            raise Exception("Type '%s' is of unknown kind: '%s'" % (typedef['name'], typedef['kind']))
+        if current['kind'] not in GQLTypeKind.non_wrapping_types:
+            raise Exception("GQLTypeKind: Type '%s' is of unknown kind: '%s'" % (typedef['name'], typedef['kind']))
 
-        self.kind = current['kind']
-        self.name = current['name']
+        return GQLTypeKind(
+            name=current['name'],
+            kind=current['kind'],
+            modifiers=modifiers
+        )
 
     # String representation (in the example above: "[BillingPlanV2!]!")
     def __repr__(self):
@@ -70,9 +83,13 @@ class GQLTypeKind(object):
         return string_representation
 
     @property
-    def is_builtin(self):
-        return self.name in self.builtin_types
+    def is_builtin_scalar(self):
+        return self.name in self.builtin_scalars
 
     @property
     def is_leaf(self):
         return self.kind in self.leaf_types
+
+    @property
+    def is_final(self):
+        return self.is_leaf or self.is_builtin_scalar

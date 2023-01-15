@@ -17,7 +17,7 @@ class GQLArg(object):
 
     @staticmethod
     def from_json(json, schema):
-        kind = gqlspection.GQLTypeKind(json['type'])
+        kind = gqlspection.GQLTypeKind.from_json(json['type'])
 
         return GQLArg(
             name=json['name'],

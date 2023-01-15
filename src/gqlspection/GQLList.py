@@ -1,4 +1,7 @@
 import collections
+if False:
+    from typing import Optional
+from gqlspection import log
 
 
 class GQLList(collections.Mapping):
@@ -11,7 +14,7 @@ class GQLList(collections.Mapping):
       - Allows selecting elements both by index (gqllist[3]) and by the 'name' (gqllist['some-name'])
       - GQLList is meant for read-only data, so there is no way to add, update, delete elements
     """
-    _elements = None  # type: collections.OrderedDict
+    _elements = None  # type: Optional[collections.OrderedDict]
 
     def __init__(self, elements):
         sorted_elements = sorted(elements, key=lambda i: i.name)
@@ -52,7 +55,7 @@ class GQLList(collections.Mapping):
         return len(self._elements)
 
     def __contains__(self, item):
-        if type(item) == str:
+        if type(item) in (str, unicode):
             return item in self._elements.keys()
         else:
             return item in self._elements.values()
