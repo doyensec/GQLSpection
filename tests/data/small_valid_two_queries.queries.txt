@@ -1,0 +1,10 @@
+query {
+    task {
+        name
+    }
+}
+query {
+    user {
+        name
+    }
+}

@@ -1,0 +1,10 @@
+mutation {
+    task {
+        name
+    }
+}
+mutation {
+    user {
+        name
+    }
+}

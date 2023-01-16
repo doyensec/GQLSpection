@@ -1,1 +1,2 @@
 requests==2.27.1
+pathlib==1.0.1

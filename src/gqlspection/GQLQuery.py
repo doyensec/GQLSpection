@@ -46,7 +46,7 @@ class GQLQuery(object):
         SPACE, NEWLINE, PADDING = self._indent(pad)
 
         first_line = ''.join((
-            'query',
+            self.operation,
             (' ' + self.name) if self.name else '',
             SPACE + '{' + NEWLINE
         ))
@@ -57,7 +57,7 @@ class GQLQuery(object):
             middle_lines += NEWLINE.join(subquery.str(pad).splitlines()) + NEWLINE
         middle_lines = pad_string(middle_lines, pad)
 
-        last_line = '}' + NEWLINE if not self.type.kind.is_final else ""
+        last_line = '}' if not self.type.kind.is_final else ""
 
         if pad:
             if self.description:

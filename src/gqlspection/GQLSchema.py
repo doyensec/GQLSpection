@@ -14,6 +14,9 @@ class GQLSchema(object):
             log.logger = logger
 
         if json:
+            if type(json) in (str, unicode):
+                json = self._str_to_json(json)
+
             if 'data' in json and '__schema' in json['data']:
                 original_schema = json['data']['__schema']
             elif '__schema' in json:
@@ -32,6 +35,11 @@ class GQLSchema(object):
 
         self.query    = self._extract_query_type(original_schema)
         self.mutation = self._extract_mutation_type(original_schema)
+
+    @staticmethod
+    def _str_to_json(data):
+        import json
+        return json.loads(data)
 
     def _extract_query_type(self, schema):
         """Get the query type name (typically 'Query').

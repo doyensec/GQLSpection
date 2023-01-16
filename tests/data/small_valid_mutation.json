@@ -1,0 +1,44 @@
+{
+    "__schema": {
+        "queryType": {
+            "name": "Query"
+        },
+        "mutationType": {
+            "name": "Mutation"
+        },
+        "types": [
+            {
+                "name": "User",
+                "kind": "OBJECT",
+                "fields": [
+                    {
+                        "name": "name",
+                        "args": [],
+                        "type": {
+                            "name": "String",
+                            "kind": "SCALAR"
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "Query",
+                "kind": "OBJECT",
+                "fields": []
+            },
+            {
+                "name": "Mutation",
+                "kind": "OBJECT",
+                "fields": [
+                    {
+                        "name": "user",
+                        "type": {
+                            "name": "User",
+                            "kind": "OBJECT"
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}
