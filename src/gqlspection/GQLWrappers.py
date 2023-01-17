@@ -1,7 +1,9 @@
 # coding: utf-8
+from __future__ import absolute_import
+from __future__ import unicode_literals
 from gqlspection import log
 import gqlspection
-from utils import safe_get_list
+from .utils import safe_get_list
 
 
 class GQLWrapFactory(object):

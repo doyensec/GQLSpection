@@ -1,4 +1,5 @@
 # coding: utf-8
+from __future__ import unicode_literals
 __documented_introspection_query = """
 query IntrospectionQuery {
     __schema {

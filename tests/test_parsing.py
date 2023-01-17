@@ -1,5 +1,6 @@
 # coding: utf-8
 # noinspection PyUnresolvedReferences
+from __future__ import unicode_literals
 import pytest
 
 from pathlib2 import Path

@@ -1,10 +1,13 @@
 # coding: utf-8
+from __future__ import print_function
+from __future__ import unicode_literals
 import click
 import json
 import sys
 import pathlib2
 from gqlspection import log, GQLSchema
-from gqlspection.utils import pad_string
+
+click.disable_unicode_literals_warning = True
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 

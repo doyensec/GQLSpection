@@ -1,4 +1,5 @@
 # coding: utf-8
+from __future__ import unicode_literals
 from gqlspection import log
 import gqlspection
 if False:
