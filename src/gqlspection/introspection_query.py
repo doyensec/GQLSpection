@@ -1,3 +1,4 @@
+# coding: utf-8
 __documented_introspection_query = """
 query IntrospectionQuery {
     __schema {

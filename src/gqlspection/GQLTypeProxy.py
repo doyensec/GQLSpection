@@ -1,3 +1,4 @@
+# coding: utf-8
 from gqlspection import log
 import gqlspection
 if False:

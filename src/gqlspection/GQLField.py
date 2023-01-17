@@ -1,3 +1,4 @@
+# coding: utf-8
 import gqlspection
 
 # FIXME: Add support for InputFields

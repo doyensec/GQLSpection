@@ -1,3 +1,4 @@
+# coding: utf-8
 import gqlspection
 from gqlspection.utils import pad_string
 

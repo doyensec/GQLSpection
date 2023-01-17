@@ -1,3 +1,4 @@
+# coding: utf-8
 class GQLEnum(object):
     name = ''                # type: str
     description = ''         # type: str

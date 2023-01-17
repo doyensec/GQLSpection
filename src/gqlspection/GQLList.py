@@ -1,3 +1,4 @@
+# coding: utf-8
 import collections
 if False:
     from typing import Optional

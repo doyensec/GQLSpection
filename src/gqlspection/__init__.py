@@ -1,3 +1,4 @@
+# coding: utf-8
 from gqlspection.Logger import log
 import gqlspection.utils
 

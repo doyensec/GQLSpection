@@ -1,3 +1,4 @@
+# coding: utf-8
 from gqlspection import log
 import gqlspection
 from utils import safe_get_list
