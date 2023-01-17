@@ -46,4 +46,3 @@ class GQLTypeProxy(object):
 
     def __dir__(self):
         return super(gqlspection.GQLType, self.upstream).__dir__()
-

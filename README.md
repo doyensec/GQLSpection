@@ -21,7 +21,7 @@ $ gqlspection -f schema.json -l all
 Send introspection query and generate queries & mutations for everything:
 
 ```bash
-$ gqlspection -u https://.../graphql 
+$ gqlspection -u https://.../graphql
 ```
 
 Generate a single query:
@@ -45,7 +45,7 @@ Usage: gqlspection [OPTIONS]
 Options:
   -f, --file TEXT      File with the GraphQL schema (introspection JSON).
   -u, --url TEXT       URL of the GraphQL endpoint with enabled introspection.
-  
+
   -l, --list TEXT      Parse GraphQL schema and list queries, mutations or
                        both of them (valid values are: 'queries', 'mutations'
                        or 'all').

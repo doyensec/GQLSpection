@@ -32,4 +32,4 @@ def test_start(name, mode):
     else:
         result = '\n'.join(schema.generate_mutation(field).str() for field in schema.mutation.fields)
 
-    assert result == expected_results
+    assert result.strip() == expected_results.strip()
