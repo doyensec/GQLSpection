@@ -4,6 +4,7 @@
 
 from __future__ import unicode_literals
 from gqlspection import log
+from builtins import str
 
 
 def minimize_query(query):
@@ -116,7 +117,7 @@ def pad_string(string, n=4):
     if not n or not string:
         return string
 
-    if type(string) in (str, unicode):
+    if isinstance(string, str):
         ends_with_newline = string[-1] == '\n'
         return '\n'.join((
             (' ' * n + line) for line in string.splitlines()

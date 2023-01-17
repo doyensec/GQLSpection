@@ -19,13 +19,13 @@ setup(
     author="Andrew Konstantinov",
     author_email="andrew@doyensec.com",
     classifiers=[
-        "Development Status :: 2 - Pre-Alpha",
+        "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
         "Intended Audience :: Information Technology",
         "Intended Audience :: System Administrators",
         "Environment :: Console",
         "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 2 :: Only",
+        "Programming Language :: Python :: 3",
         "License :: OSI Approved :: Apache Software License",
         "Topic :: Software Development :: Code Generators",
         "Topic :: Security"
@@ -33,10 +33,14 @@ setup(
     keywords="graphql, introspection",
     package_dir={"": "src"},
     packages=find_packages(where="src"),
-    python_requires="~=2.7",
+    python_requires=">=2.7",
+    install_requires=[
+        "pathlib2; python_version == '2.7'",
+        "future;   python_version == '2.7'"
+    ],
     extras_require={
-        "web": ["requests"],
-        "test": ["build", "pathlib2", "pytest", "twine"]
+        "cli": ["click", "requests"],
+        "dev": ["click", "requests", "build", "pre-commit", "pytest", "twine"]
     },
     entry_points={
         "console_scripts": [

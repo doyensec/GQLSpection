@@ -1,5 +1,7 @@
 # coding: utf-8
 from __future__ import unicode_literals
+from builtins import object
+from builtins import str
 from gqlspection import log
 import gqlspection
 if False:
@@ -16,7 +18,7 @@ class GQLSchema(object):
             log.logger = logger
 
         if json:
-            if type(json) in (str, unicode):
+            if isinstance(json, str):
                 json = self._str_to_json(json)
 
             if 'data' in json and '__schema' in json['data']:
@@ -100,14 +102,14 @@ class GQLSchema(object):
         return result
 
     def generate_query(self, name):
-        if type(name) == str:
+        if isinstance(name, str):
             field = self.query.fields[name]
         else:
             field = name
         return gqlspection.GQLQuery(self.query, 'query', fields=[field])
 
     def generate_mutation(self, name):
-        if type(name) == str:
+        if isinstance(name, str):
             field = self.query.fields[name]
         else:
             field = name

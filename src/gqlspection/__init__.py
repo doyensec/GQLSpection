@@ -16,4 +16,6 @@ from gqlspection.GQLTypeProxy import GQLTypeProxy
 from gqlspection.GQLWrappers import GQLWrapFactory, GQLArgs, GQLEnums, GQLInterfaces, GQLFields, GQLTypes
 
 # CLI tool entrypoint
-from gqlspection.cli import cli
+from platform import python_implementation
+if python_implementation() != 'Jython':
+    from gqlspection.cli import cli

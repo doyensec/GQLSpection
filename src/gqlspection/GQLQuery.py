@@ -1,5 +1,6 @@
 # coding: utf-8
 from __future__ import unicode_literals
+from builtins import object
 import gqlspection
 from gqlspection.utils import pad_string
 

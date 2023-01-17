@@ -1,5 +1,6 @@
 # coding: utf-8
 from __future__ import unicode_literals
+from builtins import object
 class GQLEnum(object):
     name = ''                # type: str
     description = ''         # type: str

@@ -1,4 +1,11 @@
-build==0.5.1
-pre-commit==1.21.0
-pytest==4.6.11
-twine==1.15.0
+pathlib2;       python_version=="2.7"
+future;         python_version=="2.7"
+
+click;          platform_python_implementation!="Jython"
+requests;       platform_python_implementation!="Jython"
+build;          platform_python_implementation!="Jython"
+pre-commit;     platform_python_implementation!="Jython"
+pytest;         platform_python_implementation!="Jython"
+twine;          platform_python_implementation!="Jython"
+
+pytest==4.4.2;  platform_python_implementation=="Jython"

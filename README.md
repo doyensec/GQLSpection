@@ -1,13 +1,28 @@
 # GQLSpection
 
-CLI tool and Python 2.7 compatible library for parsing GraphQL introspection query and automatic query generation.
+CLI tool and Python 2.7+ compatible library for parsing GraphQL introspection query and automatic query generation.
 
 ## Installation
 
-gqlspection is available on PyPI (but only Python 2.7 is supported right now):
+GQLSpection is available on PyPI (Python 2.7 and Python 3+ versions are supported).
+
+Regular installation:
 
 ```bash
-$ pip install gqlspection
+$ pip install gqlspection[cli]
+```
+
+Installation with development dependencies from git repo:
+
+```bash
+$ git clone https://github.com/doyensec/GQLSpection.git
+$ cd GQLSpection
+$ virtualenv venv
+$ . ./venv/bin/activate
+$ pip install -r requirements_dev.txt
+$ pip install -e .
+$ rehash                                 # might be needed for ZSH to find binaries
+$ pre-commit install
 ```
 
 ## Usage of the CLI tool
@@ -77,17 +92,17 @@ Send introspection query and print a single query:
 
 ```python
 >>> schema = GQLSchema(url='https://.../graphql')
->>> query = schema.generate_query('some_type')
+>>> query = schema.generate_query('SOME_TYPE')
 >>> print(query.str)
 ```
 
-Parse introspection schema from a JSON file and print all queries:
+Parse introspection schema from a JSON file and print all mutations:
 
 ```python
->>> from pathlib2 import Path
+>>> from pathlib import Path
 >>> import json
 >>> data = json.loads(Path(FILE_NAME).read_text())
 >>> schema = GQLSchema(json=data)
->>> for field in schema.query.fields:
->>>     print(schema.generate_query(field).str())
+>>> for field in schema.mutation.fields:
+>>>     print(schema.generate_mutation(field).str())
 ```

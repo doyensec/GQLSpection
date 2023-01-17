@@ -1,5 +1,6 @@
 # coding: utf-8
 from __future__ import unicode_literals
+from builtins import object
 from gqlspection import log
 import gqlspection
 if False:
@@ -27,9 +28,12 @@ class GQLTypeProxy(object):
             return self._upstream
         else:
             if log.is_debug:
-                log.debug("Found an unkonwn type: '%s'. At this time following types are present in schema:", self.name)
+                import pdb
+                pdb.set_trace()
+                log.debug("Query is present? %s", unicode('Query') in self.schema.types)
+                log.debug("Found an unknown type: '%s'. At this time following types are present in schema:", self.name)
                 for t in self.schema.types:
-                    log.debug("    %s [%s]" % (t.name, t.kind.kind))
+                    log.debug("    %s(%s) [%s]" % (type(t.name), t.name, t.kind.kind))
 
             raise Exception("GQLTypeProxy: type '%s' not defined" % self.name)
 

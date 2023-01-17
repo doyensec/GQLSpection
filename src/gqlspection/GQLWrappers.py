@@ -1,6 +1,7 @@
 # coding: utf-8
 from __future__ import absolute_import
 from __future__ import unicode_literals
+from builtins import object
 from gqlspection import log
 import gqlspection
 from .utils import safe_get_list
@@ -69,7 +70,6 @@ class GQLTypes(GQLWrapper):
                 ))
 
         return elements
-        #return (gqlspection.GQLType.from_json(t, schema) for t in safe_get_list(json, 'types'))
 
 
 class GQLFields(GQLWrapper):

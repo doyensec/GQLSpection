@@ -1,2 +1,5 @@
-pathlib==1.0.1
-requests==2.27.1
+pathlib2; python_version=="2.7"
+future;   python_version=="2.7"
+
+click;    platform_python_implementation!="Jython"
+requests; platform_python_implementation!="Jython"

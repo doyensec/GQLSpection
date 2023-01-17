@@ -1,9 +1,12 @@
 # coding: utf-8
 # noinspection PyUnresolvedReferences
 from __future__ import unicode_literals
-import pytest
 
-from pathlib2 import Path
+try:
+    from pathlib import Path
+except ImportError:
+    from pathlib2 import Path
+
 from gqlspection import GQLSchema
 
 
@@ -33,5 +36,7 @@ def test_start(name, mode):
         result = '\n'.join(schema.generate_query(field).str() for field in schema.query.fields)
     else:
         result = '\n'.join(schema.generate_mutation(field).str() for field in schema.mutation.fields)
+
+    print(type(result), type(expected_results))
 
     assert result.strip() == expected_results.strip()

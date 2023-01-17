@@ -4,7 +4,10 @@ from __future__ import unicode_literals
 import click
 import json
 import sys
-import pathlib2
+try:
+    from pathlib import Path
+except ImportError:
+    from pathlib2 import Path
 from gqlspection import log, GQLSchema
 
 click.disable_unicode_literals_warning = True
@@ -36,7 +39,13 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
     '-M', '--all-mutations', is_flag=True, help="Only print mutations (by default both queries and mutations are "
                                                 "printed)."
 )
-def cli(file_=None, url=None, all_queries=False, all_mutations=False, query=None, mutation=None, stuff_to_print=None):
+@click.option(
+    '-v', '--verbose', is_flag=True, help="Enable verbose logging."
+)
+def cli(file_=None, url=None, all_queries=False, all_mutations=False, query=None, mutation=None, stuff_to_print=None, verbose=False):
+    if verbose:
+        import logging
+        log.logger.setLevel(logging.DEBUG)
     try:
         run(file_, url, all_queries, all_mutations, query, mutation, stuff_to_print)
     except:
@@ -84,8 +93,8 @@ def run(file_, url, all_queries, all_mutations, query, mutation, stuff_to_print)
 
 def parse_schema(file_, url):
     # Parse GraphQL schema
-    if file:
-        response = json.loads(pathlib2.Path(file_).read_text())
+    if file_:
+        response = json.loads(Path(file_).read_text())
         return GQLSchema(json=response)
     elif url:
         return GQLSchema(url=url)
