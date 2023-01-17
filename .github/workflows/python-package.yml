@@ -58,4 +58,4 @@ jobs:
           flake8
       - name: Sanity check with bandit
         run: |
-          bandit
+          bandit -r src/
