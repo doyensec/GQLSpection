@@ -7,6 +7,7 @@ build;          platform_python_implementation!="Jython"
 pre-commit;     platform_python_implementation!="Jython"
 pytest;         platform_python_implementation!="Jython"
 flake8;         platform_python_implementation!="Jython"
+bandit;         platform_python_implementation!="Jython"
 twine;          platform_python_implementation!="Jython"
 
 pytest==4.4.2;  platform_python_implementation=="Jython"
