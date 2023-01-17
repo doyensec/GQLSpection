@@ -1,7 +1,6 @@
 # coding: utf-8
 from __future__ import unicode_literals
-from builtins import str
-from builtins import object
+from builtins import str, object
 import gqlspection
 
 
@@ -48,7 +47,8 @@ class GQLType(object):
         )
 
     def __repr__(self):
-        return '"{name}" ({kind}) - {description} - [fields: {fields}] [interfaces: {interfaces}] [enums: {enums}] [ args: {args}]'.format(
+        return '"{name}" ({kind}) - {description} - [fields: {fields}] [interfaces: {interfaces}] [enums: {enums}] [ ' \
+               'args: {args}]'.format(
             name        = self.name,
             kind        = self.kind.kind,
             description = self.description,

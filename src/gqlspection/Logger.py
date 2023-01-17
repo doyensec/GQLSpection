@@ -2,8 +2,9 @@
 from __future__ import unicode_literals
 from builtins import object
 import logging
-if False:
-    from typing import Optional
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from typing import Optional  # noqa
 
 
 class Logger(object):

@@ -1,16 +1,15 @@
 # coding: utf-8
-from __future__ import print_function
-from __future__ import unicode_literals
+from __future__ import print_function, unicode_literals
 import click
 import json
 import sys
 try:
     from pathlib import Path
 except ImportError:
-    from pathlib2 import Path
+    from pathlib2 import Path  # type: ignore
 from gqlspection import log, GQLSchema
 
-click.disable_unicode_literals_warning = True
+click.disable_unicode_literals_warning = True  # type: ignore
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
@@ -42,13 +41,14 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 @click.option(
     '-v', '--verbose', is_flag=True, help="Enable verbose logging."
 )
-def cli(file_=None, url=None, all_queries=False, all_mutations=False, query=None, mutation=None, stuff_to_print=None, verbose=False):
+def cli(file_=None, url=None, all_queries=False, all_mutations=False, query=None, mutation=None, stuff_to_print=None,
+        verbose=False):
     if verbose:
         import logging
         log.logger.setLevel(logging.DEBUG)
     try:
         run(file_, url, all_queries, all_mutations, query, mutation, stuff_to_print)
-    except:
+    except Exception:
         import traceback
         traceback.print_exc()
         sys.exit()

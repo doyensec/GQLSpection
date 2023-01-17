@@ -4,11 +4,10 @@ from builtins import str
 try:
     from collections.abc import Mapping
 except ImportError:
-    from collections import Mapping
+    from collections import Mapping  # type: ignore
 from collections import OrderedDict
 if False:
-    from typing import Optional
-from gqlspection import log
+    from typing import Optional  # noqa
 
 
 class GQLList(Mapping):

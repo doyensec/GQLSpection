@@ -1,11 +1,10 @@
 # coding: utf-8
 from __future__ import unicode_literals
-from builtins import object
-from builtins import str
+from builtins import object, str
 from gqlspection import log
 import gqlspection
 if False:
-    from typing import Union, Optional
+    from typing import Union, Optional # noqa
 
 
 class GQLSchema(object):

@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 from builtins import object
 if False:
-    from typing import Optional, List
+    from typing import Optional, List # noqa
 
 
 class GQLTypeKind(object):
