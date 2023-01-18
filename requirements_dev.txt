@@ -10,6 +10,7 @@ pre-commit;     platform_python_implementation!="Jython"
 pytest;         platform_python_implementation!="Jython"
 flake8;         platform_python_implementation!="Jython"
 twine;          platform_python_implementation!="Jython"
+coverage;       platform_python_implementation!="Jython"
 
 # Lates pytest version working on Python 2.7
 pytest==4.4.2;  platform_python_implementation=="Jython"

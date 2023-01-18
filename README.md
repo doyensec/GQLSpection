@@ -1,3 +1,10 @@
+![License](https://img.shields.io/github/license/doyensec/gqlspection?style=for-the-badge)
+![Python Versions](https://img.shields.io/pypi/pyversions/gqlspection?style=for-the-badge)
+![Jython Version](https://img.shields.io/badge/Jython%20(lib%20only)-2.7.3-success?style=for-the-badge)
+
+![Status](https://img.shields.io/github/actions/workflow/status/doyensec/gqlspection/python-package.yml?style=for-the-badge)
+![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/dyoensec/gqlspection/python-coverage-comment-action-data/endpoint.json&style=for-the-badge&label=Coverage)
+
 # GQLSpection
 
 CLI tool and Python 2.7+ compatible library for parsing GraphQL introspection query and automatic query generation.
