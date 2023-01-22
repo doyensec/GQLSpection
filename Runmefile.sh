@@ -136,14 +136,21 @@ clean() {
 }
 
 configure_git() {
-  if [[ $GITHUB_ACTIONS ]]; then
+  if [[ $GITHUB_ACTIONS == true ]]; then
+    log "GITHUB ACTIONS DETECTED"
     if ! git config --global user.email >/dev/null; then
+      log "SETTING GITHUB ACTIONS EMAIL"
       git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
     fi
+    log "The email now is: $(git config user.email)"
 
     if ! git config --global user.name >/dev/null; then
+      log "SETTING GITHUB ACTIONS USER"
       git config --global user.name "github-actions[bot]"
     fi
+    log "The user now is: $(git config user.name)"
+  else
+    log "I DON'T THINK WE'RE RUNNING WITHIN THE GITHUB ACTIONS"
   fi
 }
 
@@ -170,6 +177,10 @@ coverage.update_badge() {
   #
   # An example format:
   # {"schemaVersion": 1, "label": "Coverage", "message": "68%", "color": "red"}
+
+  branch="coverage-badge"
+  origin="git@github.com:doyensec/GQLSpection.git"
+
   if ! percentage=$(command coverage report --format=total); then
     err "There was a problem during coverage calculation! Got '$percentage'%."
     exit 1
@@ -191,12 +202,11 @@ coverage.update_badge() {
 
   configure_git
 
-  origin=$(git config --get remote.origin.url)
   tempdir=$(mktemp -d); pushd "$tempdir"
 
     # Get fresh copy of the repo
     git clone "$origin" repo; cd repo
-    git checkout coverage-badge
+    git checkout $branch
 
     if [[ -f coverage.json ]]; then
       log "Found the file coverage.json with the following contents: $(echo; cat coverage.json)"
@@ -213,7 +223,10 @@ coverage.update_badge() {
     git add coverage.json
     # Be cautious, as the file created above could have been the same, so there are no changes and git will cause an error.
     git diff-index --cached --quiet HEAD || git commit -m 'Update coverage stats for the badge'
-    git push origin
+
+    if ! git push origin; then
+      err "THERE WAS AN ERROR RUNNING push origin, FALL BACK TO gh"
+    fi
 
   popd
   rm -rf "$tempdir"
