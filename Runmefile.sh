@@ -262,19 +262,19 @@ coverage.update_badge() {
 # @cmd Verify that all files in dist/ correspond to the expected tag
 # @arg tagname! The tag against which the release was built
 release.verify() {
-  log "Verifying release '$argc_tagname'"
-  if [[ ! $argc_tagname ]]; then
+  log "Verifying release '${argc_tagname}'"
+  if [[ ! ${argc_tagname} ]]; then
     err "Received empty tag, can't continue!"
     exit 1
   fi
 
-  if ! ls dist/ | grep -q "$argc_tagname"; then
-    err "There are no files in dist/ that correspond to the tag '$argc_tagname'"
+  if ! ls dist/ | grep -q "${argc_tagname}"; then
+    err "There are no files in dist/ that correspond to the tag '${argc_tagname}'"
     exit 1
   fi
 
-  if ls dist/ | grep -qv "$argc_tagname"; then
-    err "There are files in dist/ that don't correspond to the tag '$argc_tagname'"
+  if ls dist/ | grep -qv "${argc_tagname}"; then
+    err "There are files in dist/ that don't correspond to the tag '${argc_tagname}'"
     exit 1
   fi
 }
@@ -289,7 +289,8 @@ build() {
 # @cmd Publish release to PyPI
 # @arg tagname! Release tag (should have been created previously and used for building the release)
 publish.pypi() {
-  release.verify "$argc_tagname"
+  log "Publishing PyPI release '${argc_tagname}'"
+  release.verify "${argc_tagname}"
 
   catch pip install twine
 
@@ -305,9 +306,9 @@ publish.pypi() {
 # @cmd Publish release to Github
 # @arg tagname! Git tag for release (should exist already, and should have been pushed to GitHub)
 publish.github() {
-  log "Publishing to github, tag '$argc_tagname'"
-  release.verify "$argc_tagname"
-  catch gh release create "$argc_tagname" --verify-tag --generate-notes --latest
+  log "Publishing to github, tag '${argc_tagname}'"
+  release.verify "${argc_tagname}"
+  catch gh release create "${argc_tagname}" --verify-tag --generate-notes --latest
 }
 
 # @cmd Bump version
