@@ -9,7 +9,7 @@ CLI tool and Python 2.7+ compatible library for parsing GraphQL introspection qu
 
 ![Main branch](https://img.shields.io/github/actions/workflow/status/doyensec/gqlspection/Release.yml?style=for-the-badge&label=main%20branch)
 ![Dev branch](https://img.shields.io/github/actions/workflow/status/doyensec/gqlspection/QA.yml?branch=dev&style=for-the-badge&label=dev%20branch)
-![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/doyensec/GQLSpection/python-coverage-comment-action-data/endpoint.json&style=for-the-badge)
+![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/doyensec/GQLSpection/coverage-badge/coverage.json&style=for-the-badge)
 
 ## Installation
 

@@ -38,13 +38,10 @@ jobs:
         run: runme deps
 
       - name: Calculate coverage
-        run: runme coverage
+        run: runme coverage.calculate
 
-      - name: Save the badge
-        id: coverage_comment
-        uses: py-cov-action/python-coverage-comment-action@v3
-        with:
-          GITHUB_TOKEN: ${{ github.token }}
+      - name: Update the coverage badge
+        run: runme coverage.update_badge
 
   release:
     if: ${{ github.event.pull_request.merged == true }}
@@ -66,7 +63,7 @@ jobs:
         with:
           version: 0.3.0
 
-      - name: Get the release type
+      - name: Create the release
         run: |
           echo "The pull request title is '$PULL_REQUEST_TITLE'"
           
