@@ -20,44 +20,6 @@ Regular installation:
 $ pip install gqlspection[cli]
 ```
 
-Installation with development dependencies from git repo:
-
-```bash
-$ git clone https://github.com/doyensec/GQLSpection.git
-$ cd GQLSpection
-$ virtualenv venv
-$ . ./venv/bin/activate
-$ pip install -e ".[dev]"
-$ # Only needed in ZSH to locate newly added binaries:
-$ rehash
-$ pre-commit install
-```
-
-### Using runme
-
-Install `runme` from https://github.com/sigoden/runme (through `cargo install --force runme` or by grabbing a binary
-release). Get a list of preinstalled development commands by running `runme` in the source dir:
-
-```commandline
-$ runme
-USAGE: Runmefile.sh <COMMAND>
-
-COMMANDS:
-  deps                    Install development dependencies
-  test                    Run tests
-  jython.install          Install Jython to jython/
-  jython.clean            Cleanup after Jython
-  jython.test             Run tests to check Jython compatibility [aliases: jython]
-  lint                    Run linters
-  clean                   Cleanup bytecode and cache files
-  coverage.calculate      Run pytest with coverage calculation [aliases: coverage]
-  coverage.github_action  Generate comment body with coverage for Github Action
-  build                   Build the python release (files go to dist/)
-  publish.pypi            Publish release to PyPI
-  publish.github          Publish release to Github
-  release                 Make a new release
-```
-
 ## Usage of the CLI tool
 
 Load schema from file and print all query and mutation names in the schema:
@@ -138,4 +100,44 @@ Parse introspection schema from a JSON file and print all mutations:
 >>> schema = GQLSchema(json=data)
 >>> for field in schema.mutation.fields:
 >>>     print(schema.generate_mutation(field).str())
+```
+
+## Contributing
+
+Installation with development dependencies from git repo:
+
+```bash
+$ git clone https://github.com/doyensec/GQLSpection.git
+$ cd GQLSpection
+$ virtualenv venv
+$ . ./venv/bin/activate
+$ pip install -e ".[dev]"
+$ # Only needed in ZSH to locate newly added binaries:
+$ rehash
+$ pre-commit install
+```
+
+### Using runme
+
+Install `runme` from https://github.com/sigoden/runme (through `cargo install --force runme` or by grabbing a binary
+release). Get a list of preinstalled development commands by running `runme` in the source dir:
+
+```commandline
+$ runme
+USAGE: Runmefile.sh <COMMAND>
+
+COMMANDS:
+  deps                    Install development dependencies
+  test                    Run tests
+  jython.install          Install Jython to jython/
+  jython.clean            Cleanup after Jython
+  jython.test             Run tests to check Jython compatibility [aliases: jython]
+  lint                    Run linters
+  clean                   Cleanup bytecode and cache files
+  coverage.calculate      Run pytest with coverage calculation [aliases: coverage]
+  coverage.github_action  Generate comment body with coverage for Github Action
+  build                   Build the python release (files go to dist/)
+  publish.pypi            Publish release to PyPI
+  publish.github          Publish release to Github
+  release                 Make a new release
 ```
