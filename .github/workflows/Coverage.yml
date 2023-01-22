@@ -8,7 +8,7 @@ on:
 
 jobs:
   coverage:
-    name: Post a comment with a coverage report
+    name: "Post a comment with a coverage report"
     runs-on: ubuntu-latest
     steps:
       - name: Dump GitHub context
