@@ -31,3 +31,5 @@ jobs:
 
       - name: Post coverage report
         run: runme coverage.github_action | gh pr comment ${{ github.event.number }} --body-file -
+        env:
+          GH_TOKEN: ${{ github.token }}
