@@ -72,7 +72,7 @@ jobs:
         run: |
           echo "The pull request title is '$PULL_REQUEST_TITLE'"
           
-          RELEASE_TYPE=$(echo "$PULL_REQUEST_TITLE" | egrep -io '(?#)(major|minor)' || echo 'patch')"
+          RELEASE_TYPE=$(echo "$PULL_REQUEST_TITLE" | egrep -io '(?#)(major|minor)' || echo 'patch')
           echo "About to create new '$RELEASE_TYPE' release"
 
           runme release $RELEASE_TYPE
