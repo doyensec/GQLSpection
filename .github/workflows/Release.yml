@@ -40,13 +40,19 @@ jobs:
       - name: Calculate coverage
         run: runme coverage.calculate
 
+      # This is awkard. Basically, we need to checkout different branch, update coverage report there, push these changes
+      # and return back. Branches have different .gitignore contents and there could be changes in current branch.
+      # Additionally, we're running Runmefile.sh from the git repo itself, so this file can't be updated during
+      # git checkout.
+      # Long story short, the simplest solution seems to be making backup of Runmefile.sh outside of the repo,
+      # running it from there and pointing it to the repo, so that it can enter it and do it's thing.
       - name: Update the coverage badge
         run: |
           original=$(readlink -f $(pwd))
 
-          cp Runmefile.sh ..
-          cd ..
+          cp Runmefile.sh .. && cd ..
           runme coverage.update_badge "$original"
+      # REPO IS LEFT IN A BROKEN STATE AFTER THIS COMMAND, DON'T RUN ANYTHING ELSE BEFORE ANOTHER action/checkout
 
   release:
     if: ${{ github.event.pull_request.merged == true }}

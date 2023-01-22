@@ -58,14 +58,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-#
-#      - name: Install 'runme'
-#        uses: ./.github/actions/install-runme
-#        with:
-#          version: 0.3.0
-#
-#      - name: Test Jython
-#        run: runme jython.test
+
+      - name: Install 'runme'
+        uses: ./.github/actions/install-runme
+        with:
+          version: 0.3.0
+
+      - name: Test Jython
+        run: runme jython.test
 
   lint:
     name: "Extended build with linting and coverage"
