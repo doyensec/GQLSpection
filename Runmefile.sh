@@ -117,7 +117,7 @@ jython.clean() {
 jython.test() {
   jython=$(jython.get_path)
   catch jython.install_deps $jython
-  $jython -m pytest
+  $jython -m pytest tests/
 }
 
 # @cmd Run linters
