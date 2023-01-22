@@ -210,6 +210,7 @@ coverage.update_badge() {
 
   log "Updating badge with new coverage stat: ${percentage}% which corresponds to $color color."
 
+  git fetch
   git checkout $branch
 
   if [[ -f coverage.json ]]; then
