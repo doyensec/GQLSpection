@@ -305,8 +305,10 @@ publish.github() {
   catch gh release create "$argc_tag" --verify-tag --generate-notes --latest
 }
 
+# @cmd Bump version
+# @arg mode! Release type (one of the 'major', 'minor' or 'patch').
 bump_version() {
-  mode=$1
+  mode="$argc_mode"
   current_version=$(git describe --abbrev=0)
 
   IFS=. read -r major minor patch <<<"$current_version"
@@ -345,7 +347,7 @@ bump_version() {
 # @arg mode! A semver release mode: 'major', 'minor' or 'patch'
 release() {
   tag=$(bump_version "$argc_mode")
-  if [[ $tag ]]; then
+  if [[ ! $tag ]]; then
     err "Couldn't bump version, somehow :("
     exit 1
   fi
