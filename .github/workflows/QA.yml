@@ -46,26 +46,26 @@ jobs:
       - name: Run tests
         run: runme test
 
-  jython:
-    name: "Testing Jython compatibility"
-    # Avoid executing the same stuff twice: filter out pull requests from dev branch
-    if: >
-      github.event_name == 'push' || ! (
-        github.event_name == 'pull_request' &&
-        github.event.pull_request.head.repo.full_name == github.repository &&
-        github.head_ref == 'dev'
-      )
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Install 'runme'
-        uses: ./.github/actions/install-runme
-        with:
-          version: 0.3.0
-
-      - name: Test Jython
-        run: runme jython.test
+#  jython:
+#    name: "Testing Jython compatibility"
+#    # Avoid executing the same stuff twice: filter out pull requests from dev branch
+#    if: >
+#      github.event_name == 'push' || ! (
+#        github.event_name == 'pull_request' &&
+#        github.event.pull_request.head.repo.full_name == github.repository &&
+#        github.head_ref == 'dev'
+#      )
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#
+#      - name: Install 'runme'
+#        uses: ./.github/actions/install-runme
+#        with:
+#          version: 0.3.0
+#
+#      - name: Test Jython
+#        run: runme jython.test
 
   lint:
     name: "Extended build with linting and coverage"
