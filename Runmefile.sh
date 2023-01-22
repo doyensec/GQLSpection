@@ -223,6 +223,7 @@ coverage.update_badge() {
     git add coverage.json
     # Be cautious, as the file created above could have been the same, so there are no changes and git will cause an error.
     git diff-index --cached --quiet HEAD || git commit -m 'Update coverage stats for the badge'
+
     if ! git push origin; then
       err "THERE WAS AN ERROR RUNNING push origin, FALL BACK TO gh"
     fi
