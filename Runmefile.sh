@@ -225,7 +225,7 @@ coverage.update_badge() {
     git diff-index --cached --quiet HEAD || git commit -m 'Update coverage stats for the badge'
     if ! git push origin; then
       err "THERE WAS AN ERROR RUNNING push origin, FALL BACK TO gh"
-
+    fi
 
   popd
   rm -rf "$tempdir"
