@@ -229,9 +229,7 @@ coverage.update_badge() {
   # Be cautious, as the file created above could have been the same, so there are no changes and git will cause an error.
   git diff-index --cached --quiet HEAD || git commit -m 'Update coverage stats for the badge'
 
-  if ! git push origin; then
-    err "THERE WAS AN ERROR RUNNING push origin, FALL BACK TO gh"
-  fi
+  git push origin
 
   popd
   if [[ ! $argc_path ]]; then
@@ -286,6 +284,7 @@ bump_version() {
       ;;
     *)
       err "Couldn't increment version, because '$mode' is unexpected (valid values are: 'major', 'minor' or 'patch')."
+      exit 1
       ;;
   esac
 
