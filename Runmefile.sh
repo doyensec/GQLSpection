@@ -160,9 +160,7 @@ coverage.calculate() {
 coverage.github_action() {
   echo 'Coverage report:'
   echo
-  echo '```'
   command coverage report --format=markdown
-  echo '```'
 }
 
 # @cmd Update coverage badge
