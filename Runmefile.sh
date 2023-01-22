@@ -137,20 +137,16 @@ clean() {
 
 configure_git() {
   if [[ $GITHUB_ACTIONS == true ]]; then
-    log "GITHUB ACTIONS DETECTED"
+    log "Github actions detected"
     if ! git config --global user.email >/dev/null; then
-      log "SETTING GITHUB ACTIONS EMAIL"
-      git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      log "Setting github actions bot email"
+      git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com" >/dev/null
     fi
-    log "The email now is: $(git config user.email)"
 
     if ! git config --global user.name >/dev/null; then
-      log "SETTING GITHUB ACTIONS USER"
-      git config --global user.name "github-actions[bot]"
+      log "Setting github actions username"
+      git config --global user.name "github-actions[bot]" >/dev/null
     fi
-    log "The user now is: $(git config user.name)"
-  else
-    log "I DON'T THINK WE'RE RUNNING WITHIN THE GITHUB ACTIONS"
   fi
 }
 
@@ -172,6 +168,25 @@ coverage.github_action() {
 
 # @cmd Update coverage badge
 # @arg path Path to the github repo that should be used for adding coverage badge info.
+#
+# This function has two code paths. If executed interactively, it does not need any arguments
+# and will clone the repo in a temporary directory. That copy will be used to checkout
+# coverage-badge branch and commit changes there without disturbing local directory.
+#
+# However, when running in Github Actions context, Github token has limited permissions
+# and does not work in a newly checked out repo. Further complication comes from Runfile
+# being located in the repo itself, so it can't be properly updated when changing branches.
+# This causes conflicts and the best solution seems to be copying Runfile outside of the
+# repo, running it from there, chdir'ing back inside the repo, checking out the new branch
+# and making changes there, so that they can be properly pushed.
+#
+# So, when running in Github Actions, this function accepts additional argument - 'path'
+# which indicates location of the source code. It is expected, that by this time Runfile
+# has already been copied to some outside location and gets executed from there.
+#
+# Note that repo will be left in a dirty state at the end of this function, but that's
+# alright, because Github Actions will clean up after it (don't run any further steps
+# after this one though!).
 coverage.update_badge() {
   # Coverage badge is defined in an endpoint.json file, which is located in
   # 'coverage-badge' branch.
@@ -179,16 +194,19 @@ coverage.update_badge() {
   # An example format:
   # {"schemaVersion": 1, "label": "Coverage", "message": "68%", "color": "red"}
   branch="coverage-badge"
-  configure_git
+  configure_git >/dev/null
 
   if [[ $argc_path ]]; then
-    pushd $argc_path
+    # Github Actions, arguments contains path to the original repo prepared by action/checkout
+    pushd $argc_path >/dev/null
   else
-    tempdir=$(mktemp -d); pushd "$tempdir"
+    # Interactive execution
+    tempdir=$(mktemp -d); pushd "$tempdir" >/dev/null
 
     # Get fresh copy of the repo
     origin="git@github.com:doyensec/GQLSpection.git"
-    git clone "$origin" repo; cd repo
+    catch git clone "$origin" repo
+    cd repo
   fi
 
   if ! percentage=$(command coverage report --format=total); then
@@ -210,8 +228,8 @@ coverage.update_badge() {
 
   log "Updating badge with new coverage stat: ${percentage}% which corresponds to $color color."
 
-  git fetch
-  git checkout $branch
+  catch git fetch
+  catch git checkout $branch
 
   if [[ -f coverage.json ]]; then
     log "Found the file coverage.json with the following contents: $(echo; cat coverage.json)"
@@ -225,17 +243,32 @@ coverage.update_badge() {
   printf '{"schemaVersion": 1, "label": "Coverage", "message": "%d%%", "color": "%s"}' $percentage $color > coverage.json
 
   # Commit and push changes
-  git add coverage.json
+  catch git add coverage.json
   # Be cautious, as the file created above could have been the same, so there are no changes and git will cause an error.
-  git diff-index --cached --quiet HEAD || git commit -m 'Update coverage stats for the badge'
+  catch git diff-index --cached --quiet HEAD || git commit -m 'Update coverage stats for the badge' >/dev/null
 
-  git push origin
+  catch git push origin
 
   popd
   if [[ ! $argc_path ]]; then
     rm -rf "$tempdir"
   fi
 }
+
+# @cmd Verify that all files in dist/ correspond to the expected tag
+# arg tag The tag against which the release was built
+release.verify() {
+  if ! ls dist/ | grep -q "$argc_tag"; then
+    err "There are no files in dist/ that correspond to the tag '$argc_tag'"
+    exit 1
+  fi
+
+  if ls dist/ | grep -qv "$argc_tag"; then
+    err "There are files in dist/ that don't correspond to the tag '$argc_tag'"
+    exit 1
+  fi
+}
+
 
 # @cmd Build the python release (files go to dist/)
 build() {
@@ -244,13 +277,16 @@ build() {
 }
 
 # @cmd Publish release to PyPI
+# @arg tag! Release tag (should have been created previously and used for building the release)
 publish.pypi() {
+  release.verify "$argc_tag"
+
   catch pip install twine
 
   if [[ $TWINE_PASSWORD ]]; then
     # Config parameters provided as env variables. Set the default username if not provided:
     if [[ ! $TWINE_USERNAME ]]; then
-      TWINE_USERNAME="__token__"
+      export TWINE_USERNAME="__token__"
     fi
   fi
   catch twine upload --non-interactive dist/*
@@ -259,7 +295,8 @@ publish.pypi() {
 # @cmd Publish release to Github
 # @arg tag! Git tag for release (should exist already, and should have been pushed to GitHub)
 publish.github() {
-  catch gh release create $argc_tag --verify-tag --generate-notes --latest
+  release.verify "$argc_tag"
+  catch gh release create "$argc_tag" --verify-tag --generate-notes --latest
 }
 
 bump_version() {
@@ -292,17 +329,19 @@ bump_version() {
 
   configure_git
 
-  git tag -a -m "Release $new_tag" "$new_tag"
-  git push origin "$new_tag"
+  catch git tag -a -m "Release $new_tag" "$new_tag"
+  catch git push origin "$new_tag"
+
+  echo "$new_tag"
 }
 
 # @cmd Make a new release
 # @arg mode! A semver release mode: 'major', 'minor' or 'patch'
 release() {
-  bump_version "$argc_mode"
+  tag=$(bump_version "$argc_mode")
   build
-  publish.pypi
-  publish.github
+  publish.pypi "$tag"
+  publish.github "$tag"
 }
 
 # @cmd Make new release
