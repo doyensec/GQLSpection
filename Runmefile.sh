@@ -245,6 +245,8 @@ build() {
 
 # @cmd Publish release to PyPI
 publish.pypi() {
+  catch pip install twine
+
   if [[ $TWINE_PASSWORD ]]; then
     # Config parameters provided as env variables. Set the default username if not provided:
     if [[ ! $TWINE_USERNAME ]]; then
