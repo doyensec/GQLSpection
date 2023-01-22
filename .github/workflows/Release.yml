@@ -19,6 +19,9 @@ jobs:
     name: "Update coverage badge for the Readme"
     runs-on: ubuntu-latest
     steps:
+      - name: Dump GitHub context
+        run: echo '${{ toJSON(github) }}'
+
       - uses: actions/checkout@v3
 
       - name: Set up Python 3.11

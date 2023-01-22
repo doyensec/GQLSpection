@@ -11,12 +11,21 @@ on:
 
 jobs:
   build:
+#    if: >
+#      github.event_name == 'push' || (
+#        github.event_name == 'pull_request' &&
+#        github.event.pull_request.head.repo.full_name == github.repository &&
+#        github.head_ref || github.ref_name
+#      )
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         python-version: ["2.7", "3.7", "3.8", "3.9", "3.10"]
     steps:
+      - name: Dump GitHub context
+        run: echo '${{ toJSON(github) }}'
+
       - uses: actions/checkout@v3
 
       - name: Set up Python ${{ matrix.python-version }}
