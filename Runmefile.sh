@@ -171,15 +171,25 @@ coverage.github_action() {
 }
 
 # @cmd Update coverage badge
+# @arg path Path to the github repo that should be used for adding coverage badge info.
 coverage.update_badge() {
   # Coverage badge is defined in an endpoint.json file, which is located in
   # 'coverage-badge' branch.
   #
   # An example format:
   # {"schemaVersion": 1, "label": "Coverage", "message": "68%", "color": "red"}
-
   branch="coverage-badge"
-  origin="git@github.com:doyensec/GQLSpection.git"
+  configure_git
+
+  if [[ $argc_path ]]; then
+    pushd $argc_path
+  else
+    tempdir=$(mktemp -d); pushd "$tempdir"
+
+    # Get fresh copy of the repo
+    origin="git@github.com:doyensec/GQLSpection.git"
+    git clone "$origin" repo; cd repo
+  fi
 
   if ! percentage=$(command coverage report --format=total); then
     err "There was a problem during coverage calculation! Got '$percentage'%."
@@ -200,36 +210,32 @@ coverage.update_badge() {
 
   log "Updating badge with new coverage stat: ${percentage}% which corresponds to $color color."
 
-  configure_git
+  git checkout $branch
 
-  tempdir=$(mktemp -d); pushd "$tempdir"
+  if [[ -f coverage.json ]]; then
+    log "Found the file coverage.json with the following contents: $(echo; cat coverage.json)"
+  else
+    err "Couldn't find the coverage.json file!"
+    exit 1
+  fi
 
-    # Get fresh copy of the repo
-    git clone "$origin" repo; cd repo
-    git checkout $branch
+  # Generate the new coverage.json
+  rm -f coverage.json
+  printf '{"schemaVersion": 1, "label": "Coverage", "message": "%d%%", "color": "%s"}' $percentage $color > coverage.json
 
-    if [[ -f coverage.json ]]; then
-      log "Found the file coverage.json with the following contents: $(echo; cat coverage.json)"
-    else
-      err "Couldn't find the coverage.json file!"
-      exit 1
-    fi
+  # Commit and push changes
+  git add coverage.json
+  # Be cautious, as the file created above could have been the same, so there are no changes and git will cause an error.
+  git diff-index --cached --quiet HEAD || git commit -m 'Update coverage stats for the badge'
 
-    # Generate the new coverage.json
-    rm -f coverage.json
-    printf '{"schemaVersion": 1, "label": "Coverage", "message": "%d%%", "color": "%s"}' $percentage $color > coverage.json
-
-    # Commit and push changes
-    git add coverage.json
-    # Be cautious, as the file created above could have been the same, so there are no changes and git will cause an error.
-    git diff-index --cached --quiet HEAD || git commit -m 'Update coverage stats for the badge'
-
-    if ! git push origin; then
-      err "THERE WAS AN ERROR RUNNING push origin, FALL BACK TO gh"
-    fi
+  if ! git push origin; then
+    err "THERE WAS AN ERROR RUNNING push origin, FALL BACK TO gh"
+  fi
 
   popd
-  rm -rf "$tempdir"
+  if [[ ! $argc_path ]]; then
+    rm -rf "$tempdir"
+  fi
 }
 
 # @cmd Build the python release (files go to dist/)
