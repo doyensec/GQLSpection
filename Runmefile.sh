@@ -263,6 +263,11 @@ coverage.update_badge() {
 # @arg tag! The tag against which the release was built
 release.verify() {
   log "Verifying release '$argc_tag'"
+  if [[ ! $argc_tag ]]; then
+    err "Received empty tag, can't continue!"
+    exit 1
+  fi
+
   if ! ls dist/ | grep -q "$argc_tag"; then
     err "There are no files in dist/ that correspond to the tag '$argc_tag'"
     exit 1
@@ -340,22 +345,28 @@ bump_version() {
   catch git tag -a -m "Release $new_tag" "$new_tag"
   catch git push origin "$new_tag"
 
+  log "Pushed a new tag: '$new_tag'"
   echo "$new_tag"
 }
 
 # @cmd Make a new release
 # @arg mode! A semver release mode: 'major', 'minor' or 'patch'
 release() {
-  tag=$(bump_version "$argc_mode")
-  if [[ ! $tag ]]; then
+  log "Create a new release ($argc_mode)"
+
+  tagname=$(bump_version "$argc_mode")
+  if [[ ! $tagname ]]; then
     err "Couldn't bump version, somehow :("
     exit 1
   fi
 
   build
 
-  publish.pypi "$tag"
-  publish.github "$tag"
+  log "Running publish.pypi '$tagname'"
+  publish.pypi "$tagname"
+
+  log "Running publish.github '$tagname'"
+  publish.github "$tagname"
 }
 
 # @cmd Make new release
