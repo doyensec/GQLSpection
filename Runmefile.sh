@@ -2,6 +2,8 @@
 
 set -e
 
+# FIXME: cant use argc_* arguments due to runme bug: https://github.com/sigoden/runme/issues/4
+
 # 1. Install the runme with `cargo install --force runme`
 # 2. Grab shell completion from: https://github.com/sigoden/runme/tree/main/completions
 # 3. Run `runme` to see the list of existing tasks
@@ -171,7 +173,7 @@ coverage.github_action() {
 }
 
 # @cmd Update coverage badge
-# @arg path Path to the github repo that should be used for adding coverage badge info.
+# @arg repo_path Path to the github repo that should be used for adding coverage badge info.
 #
 # This function has two code paths. If executed interactively, it does not need any arguments
 # and will clone the repo in a temporary directory. That copy will be used to checkout
@@ -184,7 +186,7 @@ coverage.github_action() {
 # repo, running it from there, chdir'ing back inside the repo, checking out the new branch
 # and making changes there, so that they can be properly pushed.
 #
-# So, when running in Github Actions, this function accepts additional argument - 'path'
+# So, when running in Github Actions, this function accepts additional argument - 'repo_path'
 # which indicates location of the source code. It is expected, that by this time Runfile
 # has already been copied to some outside location and gets executed from there.
 #
@@ -192,6 +194,7 @@ coverage.github_action() {
 # alright, because Github Actions will clean up after it (don't run any further steps
 # after this one though!).
 coverage.update_badge() {
+  repo_path=$1
   # Coverage badge is defined in an endpoint.json file, which is located in
   # 'coverage-badge' branch.
   #
@@ -200,9 +203,9 @@ coverage.update_badge() {
   branch="coverage-badge"
   configure_git >/dev/null
 
-  if [[ $argc_path ]]; then
+  if [[ $repo_path ]]; then
     # Github Actions, arguments contains path to the original repo prepared by action/checkout
-    pushd $argc_path >/dev/null
+    pushd $repo_path >/dev/null
   else
     # Interactive execution
     tempdir=$(mktemp -d); pushd "$tempdir" >/dev/null
@@ -254,7 +257,7 @@ coverage.update_badge() {
   catch git push origin
 
   popd
-  if [[ ! $argc_path ]]; then
+  if [[ ! $repo_path ]]; then
     rm -rf "$tempdir"
   fi
 }
@@ -262,19 +265,20 @@ coverage.update_badge() {
 # @cmd Verify that all files in dist/ correspond to the expected tag
 # @arg tagname! The tag against which the release was built
 release.verify() {
-  log "Verifying release '${argc_tagname}'"
-  if [[ ! ${argc_tagname} ]]; then
+  tagname=$1
+  log "Verifying release '${tagname}'"
+  if [[ ! ${tagname} ]]; then
     err "Received empty tag, can't continue!"
     exit 1
   fi
 
-  if ! ls dist/ | grep -q "${argc_tagname}"; then
-    err "There are no files in dist/ that correspond to the tag '${argc_tagname}'"
+  if ! ls dist/ | grep -q "${tagname}"; then
+    err "There are no files in dist/ that correspond to the tag '${tagname}'"
     exit 1
   fi
 
-  if ls dist/ | grep -qv "${argc_tagname}"; then
-    err "There are files in dist/ that don't correspond to the tag '${argc_tagname}'"
+  if ls dist/ | grep -qv "${tagname}"; then
+    err "There are files in dist/ that don't correspond to the tag '${tagname}'"
     exit 1
   fi
 }
@@ -289,8 +293,9 @@ build() {
 # @cmd Publish release to PyPI
 # @arg tagname! Release tag (should have been created previously and used for building the release)
 publish.pypi() {
-  log "Publishing PyPI release '${argc_tagname}'"
-  release.verify "${argc_tagname}"
+  tagname=$1
+  log "Publishing PyPI release '$tagname'"
+  release.verify "${tagname}"
 
   catch pip install twine
 
@@ -306,15 +311,16 @@ publish.pypi() {
 # @cmd Publish release to Github
 # @arg tagname! Git tag for release (should exist already, and should have been pushed to GitHub)
 publish.github() {
-  log "Publishing to github, tag '${argc_tagname}'"
-  release.verify "${argc_tagname}"
-  catch gh release create "${argc_tagname}" --verify-tag --generate-notes --latest
+  tagname=$1
+  log "Publishing to github, tag '${tagname}'"
+  release.verify "${tagname}"
+  catch gh release create "${tagname}" --verify-tag --generate-notes --latest
 }
 
 # @cmd Bump version
 # @arg mode! Release type (one of the 'major', 'minor' or 'patch').
 bump_version() {
-  mode="$argc_mode"
+  mode="$1"
   current_version=$(git describe --abbrev=0)
 
   IFS=. read -r major minor patch <<<"$current_version"
@@ -353,9 +359,10 @@ bump_version() {
 # @cmd Make a new release
 # @arg mode! A semver release mode: 'major', 'minor' or 'patch'
 release() {
-  log "Create a new release ($argc_mode)"
+  mode=$1
+  log "Create a new release ($mode)"
 
-  tagname=$(bump_version "$argc_mode")
+  tagname=$(bump_version "$mode")
   if [[ ! $tagname ]]; then
     err "Couldn't bump version, somehow :("
     exit 1
@@ -369,7 +376,5 @@ release() {
   log "Running publish.github '$tagname'"
   publish.github "$tagname"
 }
-
-# @cmd Make new release
 
 eval $(runme --runme-eval "$0" "$@")
