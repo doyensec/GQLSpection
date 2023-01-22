@@ -135,6 +135,18 @@ clean() {
   rm -rf dist .eggs .pytest_cache .coverage coverage.xml
 }
 
+configure_git() {
+  if [[ $GITHUB_ACTIONS ]]; then
+    if ! git config --global user.email >/dev/null; then
+      git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+    fi
+
+    if ! git config --global user.name >/dev/null; then
+      git config --global user.name "github-actions[bot]"
+    fi
+  fi
+}
+
 # @cmd Run pytest with coverage calculation
 # @alias coverage
 coverage.calculate() {
@@ -148,9 +160,60 @@ coverage.calculate() {
 coverage.github_action() {
   echo 'Coverage report:'
   echo
-  echo '```'
-  command coverage report
-  echo '```'
+  command coverage report --format=markdown
+}
+
+# @cmd Update coverage badge
+coverage.update_badge() {
+  # Coverage badge is defined in an endpoint.json file, which is located in
+  # 'coverage-badge' branch.
+  #
+  # An example format:
+  # {"schemaVersion": 1, "label": "Coverage", "message": "68%", "color": "red"}
+  if ! percentage=$(command coverage report --format=total); then
+    err "There was a problem during coverage calculation! Got '$percentage'%."
+    exit 1
+  fi
+
+  if   (( percentage > 95 )); then
+    color=brightgreen
+  elif (( percentage > 90 )); then
+    color=green
+  elif (( percentage > 85 )); then
+    color=yellow
+  elif (( percentage > 80 )); then
+    color=orange
+  else
+    color=red
+  fi
+
+  log "Updating badge with new coverage stat: ${percentage}% which corresponds to $color color."
+
+  configure_git
+
+  origin=$(git config --get remote.origin.url)
+  tempdir=$(mktemp -d); pushd $tempdir >/dev/null
+
+    # Get fresh copy of the repo
+    git clone $origin repo; cd repo
+    git checkout coverage-badge
+
+    if [[ ! -f coverage.json ]]; then
+      err "Couldn't find the coverage.json file!"
+      exit 1
+    fi
+
+    # Generate the new coverage.json
+    rm -f coverage.json
+    printf '{"schemaVersion": 1, "label": "Coverage", "message": "%d%%", "color": "%s"}' $percentage $color > coverage.json
+
+    # Commit and push changes
+    git add coverage.json
+    git commit -m 'Update coverage stats for the badge'
+    git push origin
+
+  popd >/dev/null
+  rm -rf $tempdir
 }
 
 # @cmd Build the python release (files go to dist/)
@@ -203,10 +266,7 @@ bump_version() {
       ;;
   esac
 
-  if [[ $GITHUB_ACTIONS == true ]]; then
-    git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-    git config user.name "github-actions[bot]"
-  fi
+  configure_git
 
   git tag -a -m "Release $new_tag" "$new_tag"
   git push origin "$new_tag"
