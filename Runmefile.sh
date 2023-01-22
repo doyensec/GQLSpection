@@ -19,6 +19,10 @@ err() {
 }
 readonly -f err
 
+last_lines_to_err() {
+  tail -n5 <<< "$@" >&4
+}
+
 catch() {
   if ! output=$("$@" 2>&1); then
     err
@@ -27,7 +31,7 @@ catch() {
     err "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
     err
     err "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-    err "$(echo \"$output\" | tail -n 5)"
+    last_lines_to_err "$output"
     err "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
     err
     exit 1
@@ -256,8 +260,9 @@ coverage.update_badge() {
 }
 
 # @cmd Verify that all files in dist/ correspond to the expected tag
-# arg tag The tag against which the release was built
+# @arg tag! The tag against which the release was built
 release.verify() {
+  log "Verifying release '$argc_tag'"
   if ! ls dist/ | grep -q "$argc_tag"; then
     err "There are no files in dist/ that correspond to the tag '$argc_tag'"
     exit 1
@@ -295,6 +300,7 @@ publish.pypi() {
 # @cmd Publish release to Github
 # @arg tag! Git tag for release (should exist already, and should have been pushed to GitHub)
 publish.github() {
+  log "Publishing to github, tag '$argc_tag'"
   release.verify "$argc_tag"
   catch gh release create "$argc_tag" --verify-tag --generate-notes --latest
 }
@@ -327,7 +333,7 @@ bump_version() {
       ;;
   esac
 
-  configure_git
+  configure_git >/dev/null
 
   catch git tag -a -m "Release $new_tag" "$new_tag"
   catch git push origin "$new_tag"
@@ -339,7 +345,13 @@ bump_version() {
 # @arg mode! A semver release mode: 'major', 'minor' or 'patch'
 release() {
   tag=$(bump_version "$argc_mode")
+  if [[ $tag ]]; then
+    err "Couldn't bump version, somehow :("
+    exit 1
+  fi
+
   build
+
   publish.pypi "$tag"
   publish.github "$tag"
 }
