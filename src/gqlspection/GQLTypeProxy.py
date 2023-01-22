@@ -3,15 +3,13 @@ from __future__ import unicode_literals
 from builtins import object
 from gqlspection import log
 import gqlspection
-if False:
-    from typing import Optional # noqa
 
 
 class GQLTypeProxy(object):
-    name = ''        # type: str
-    schema = None    # type: Optional[gqlspection.GQLSchema]
-    _upstream = None  # type: Optional[gqlspection.GQLType]
-    max_depth = 4    # type: int
+    name = ''
+    schema = None
+    _upstream = None
+    max_depth = 4
 
     def __init__(self, name, schema):
         self.name = name

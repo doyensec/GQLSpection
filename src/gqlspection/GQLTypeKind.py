@@ -1,8 +1,6 @@
 # coding: utf-8
 from __future__ import unicode_literals
 from builtins import object
-if False:
-    from typing import Optional, List # noqa
 
 
 class GQLTypeKind(object):
@@ -44,11 +42,11 @@ class GQLTypeKind(object):
     builtin_scalars = ('Int', 'Float', 'String', 'Boolean', 'ID')
 
     # in the example above: [NON_NULL, LIST, NON_NULL]
-    modifiers = None                                             # type: Optional[List[str]]
+    modifiers = None
     # in the example above: OBJECT
-    kind = None                                                  # type: Optional[str]
+    kind = None
     # in the example above: 'BillingPlanV2'
-    name = None                                                  # type: Optional[str]
+    name = None
 
     def __init__(self, name, kind, modifiers=None):
         self.name = name

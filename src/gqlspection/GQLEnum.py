@@ -4,10 +4,10 @@ from builtins import object
 
 
 class GQLEnum(object):
-    name = ''                # type: str
-    description = ''         # type: str
-    is_deprecated = False    # type: bool
-    deprecation_reason = ''  # type: str
+    name = ''
+    description = ''
+    is_deprecated = False
+    deprecation_reason = ''
 
     def __init__(self, name, description = '', is_deprecated=False, deprecation_reason=''):
         self.name = name

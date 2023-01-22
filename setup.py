@@ -9,9 +9,26 @@ readme_path = os.path.join(pwd, "README.md")
 with open(readme_path) as f:
     readme = f.read()
 
+
+def is_jython():
+    from platform import python_implementation
+    return python_implementation() == 'Jython'
+
+
+if is_jython():
+    # Create _version.py ahead of type by running:
+    #   python3 -c "import setuptools_scm; setuptools_scm.get_version(write_to='_version.py')"
+    from _version import version
+
 setup(
     name="gqlspection",
-    version="0.0.1a1",
+    # If Jython, import version from version.py file (should be created ahead of time)
+    version=version if is_jython() else None,
+    # Otherwise, load version from git tags
+    setup_requires=[
+        "setuptools_scm"
+    ] if not is_jython() else [],
+    use_scm_version=not is_jython(),
     description="GraphQL Introspection parsing and query generation",
     long_description=readme,
     long_description_content_type="text/markdown",
@@ -26,6 +43,13 @@ setup(
         "Environment :: Console",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: Implementation :: CPython",
+        "Programming Language :: Python :: Implementation :: Jython",
         "License :: OSI Approved :: Apache Software License",
         "Topic :: Software Development :: Code Generators",
         "Topic :: Security"
@@ -39,8 +63,7 @@ setup(
         "future;   python_version == '2.7'"
     ],
     extras_require={
-        "cli": ["click", "requests"],
-        "dev": ["click", "requests", "build", "pre-commit", "pytest", "twine"]
+        "cli": ["click", "requests"]
     },
     entry_points={
         "console_scripts": [

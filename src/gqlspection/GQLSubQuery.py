@@ -6,10 +6,10 @@ from gqlspection.utils import pad_string
 
 
 class GQLSubQuery(object):
-    field       = None  # type: gqlspection.GQLField
-    name        = ''    # type: str
-    description = ''    # type: str
-    max_depth   = 4     # type: int
+    field       = None
+    name        = ''
+    description = ''
+    max_depth   = 4
 
     def __init__(self, field, max_depth=5):
         self.field        = field

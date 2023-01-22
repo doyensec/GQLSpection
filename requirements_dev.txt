@@ -1,18 +1,21 @@
+# Extract version from git tags
+setuptools_scm
+
 # Python 2 only dependencies
 pathlib2;       python_version=="2.7"
 future;         python_version=="2.7"
 
 # Development stuff, not needed (and not working) in Jython
 click;          platform_python_implementation!="Jython"
-requests;       platform_python_implementation!="Jython"
+coverage;       platform_python_implementation!="Jython"
+flake8;         platform_python_implementation!="Jython"
 build;          platform_python_implementation!="Jython"
 pre-commit;     platform_python_implementation!="Jython"
 pytest;         platform_python_implementation!="Jython"
-flake8;         platform_python_implementation!="Jython"
+requests;       platform_python_implementation!="Jython"
 twine;          platform_python_implementation!="Jython"
-coverage;       platform_python_implementation!="Jython"
 
-# Lates pytest version working on Python 2.7
+# Latest pytest version working on Jython
 pytest==4.4.2;  platform_python_implementation=="Jython"
 
 # bandit requires Python 3

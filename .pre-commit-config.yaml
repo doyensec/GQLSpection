@@ -14,18 +14,9 @@ repos:
     -   id: check-json
     -   id: check-yaml
     -   id: check-added-large-files
-    -   id: requirements-txt-fixer
     -   id: check-merge-conflict
     -   id: fix-encoding-pragma
         args: [--pragma, '# coding: utf-8']
--   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.991
-    hooks:
-    -   id: mypy
-        # mypy runs from an isolated venv, without the project dependencies.
-        # specific stuff can be added with:
-        #additional_dependencies: [tokenize-rt==3.2.0]
-        args: [--no-namespace-packages]
 default_language_version:
     python: python3
 fail_fast: false

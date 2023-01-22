@@ -1,0 +1,33 @@
+name: Post a comment to PR with a coverage report
+
+on:
+  pull_request:
+    branches:
+      - dev
+      - main
+
+jobs:
+  coverage:
+    name: Post a comment with a coverage report
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install 'runme'
+        uses: ./.github/actions/install-runme
+        with:
+          version: 0.3.0
+
+      - name: Install dependencies
+        run: runme deps
+
+      - name: Calculate coverage
+        run: runme coverage.calculate
+
+      - name: Post coverage report
+        run: runme coverage.github_action | gh pr comment ${{ github.event.number }} --body-file -

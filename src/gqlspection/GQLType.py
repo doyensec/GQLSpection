@@ -5,15 +5,15 @@ import gqlspection
 
 
 class GQLType(object):
-    name = ''          # type: str
-    kind = None        # type: gqlspection.GQLTypeKind
-    schema = None      # type: gqlspection.GQLSchema
-    description = ''   # type: str
-    fields = None      # type: gqlspection.GQLFields
-    interfaces = None  # type: gqlspection.GQLInterfaces
-    enums = None       # type: gqlspection.GQLEnums
-    args = None      # type: gqlspection.GQLArgs
-    url = ''           # type: str
+    name = ''
+    kind = None
+    schema = None
+    description = ''
+    fields = None
+    interfaces = None
+    enums = None
+    args = None
+    url = ''
 
     def __init__(self, name, kind, schema, description='', fields=None, interfaces=None, enums=None, args=None, url=''):
         self.name = name

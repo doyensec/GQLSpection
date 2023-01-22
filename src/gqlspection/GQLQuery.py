@@ -6,11 +6,11 @@ from gqlspection.utils import pad_string
 
 
 class GQLQuery(object):
-    type    = None    # type: gqlspection.GQLType
-    operation = ''    # type: str
-    name   = ''       # type: str
-    description = ''  # type: str
-    fields = None     # type: gqlspection.GQLFields
+    type    = None
+    operation = ''
+    name   = ''
+    description = ''
+    fields = None
 
     def __init__(self, gqltype, operation='query', name='', fields=None):
         self.fields = fields if fields else self.type.fields

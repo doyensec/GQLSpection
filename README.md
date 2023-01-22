@@ -1,13 +1,14 @@
-![License](https://img.shields.io/github/license/doyensec/gqlspection?style=for-the-badge)
-![Python Versions](https://img.shields.io/pypi/pyversions/gqlspection?style=for-the-badge)
-![Jython Version](https://img.shields.io/badge/Jython%20(lib%20only)-2.7.3-success?style=for-the-badge)
-
-![Status](https://img.shields.io/github/actions/workflow/status/doyensec/gqlspection/python-package.yml?style=for-the-badge)
-![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/dyoensec/gqlspection/python-coverage-comment-action-data/endpoint.json&style=for-the-badge&label=Coverage)
-
 # GQLSpection
 
 CLI tool and Python 2.7+ compatible library for parsing GraphQL introspection query and automatic query generation.
+
+![License](https://img.shields.io/github/license/doyensec/gqlspection?style=for-the-badge)
+![Python Versions](https://img.shields.io/pypi/pyversions/gqlspection?style=for-the-badge)
+![Jython Version](https://img.shields.io/badge/Jython%20%28lib%20only%29-2.7.3-success?style=for-the-badge)
+
+
+![Status](https://img.shields.io/github/actions/workflow/status/doyensec/gqlspection/QA.yml?style=for-the-badge)
+![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/doyensec/GQLSpection/python-coverage-comment-action-data/endpoint.json&style=for-the-badge)
 
 ## Installation
 
@@ -26,9 +27,9 @@ $ git clone https://github.com/doyensec/GQLSpection.git
 $ cd GQLSpection
 $ virtualenv venv
 $ . ./venv/bin/activate
-$ pip install -r requirements_dev.txt
-$ pip install -e .
-$ rehash                                 # might be needed for ZSH to find binaries
+$ pip install -e ".[dev]"
+$ # Only needed in ZSH to locate newly added binaries:
+$ rehash
 $ pre-commit install
 ```
 

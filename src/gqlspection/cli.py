@@ -6,10 +6,10 @@ import sys
 try:
     from pathlib import Path
 except ImportError:
-    from pathlib2 import Path  # type: ignore
+    from pathlib2 import Path
 from gqlspection import log, GQLSchema
 
-click.disable_unicode_literals_warning = True  # type: ignore
+click.disable_unicode_literals_warning = True
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 

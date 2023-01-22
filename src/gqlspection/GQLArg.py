@@ -5,11 +5,11 @@ import gqlspection
 
 
 class GQLArg(object):
-    name         = ''     # type: str
-    kind         = None   # type: gqlspection.GQLTypeKind
-    description  = ''     # type: str
-    type         = None   # type: gqlspection.GQLTypeProxy
-    default_value = ''    # type: str
+    name         = ''
+    kind         = None
+    description  = ''
+    type         = None
+    default_value = ''
 
     def __init__(self, name, kind, type_, description='', default_value=''):
         self.name = name

@@ -1,0 +1,20 @@
+name: Install 'runme'
+description: Install 'runme' task runner from binary release
+
+inputs:
+  version:
+    required: true
+    description: Runme version to install
+
+runs:
+  using: composite
+  steps:
+  - run: |
+      runme_archive="runme-v${{ inputs.version }}-$(uname -m)-unknown-linux-musl.tar.gz"
+      wget "https://github.com/sigoden/runme/releases/download/v${{ inputs.version }}/${runme_archive}"
+      tar xvf ${runme_archive}
+      rm -f ${runme_archive}
+      mkdir -p ~/bin
+      mv ./runme ~/bin
+      echo ~/bin >> $GITHUB_PATH
+    shell: bash

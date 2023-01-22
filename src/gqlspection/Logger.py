@@ -2,13 +2,10 @@
 from __future__ import unicode_literals
 from builtins import object
 import logging
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from typing import Optional  # noqa
 
 
 class Logger(object):
-    logger = None  # type: Optional[logging.Logger]
+    logger = None
 
     def __init__(self):
         logging.basicConfig()

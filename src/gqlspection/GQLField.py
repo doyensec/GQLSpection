@@ -7,14 +7,14 @@ import gqlspection
 
 
 class GQLField(object):
-    name = ''                # type: str
-    description = ''         # type: str
-    kind  = None             # type: gqlspection.GQLTypeKind
-    type  = None             # type: gqlspection.GQLTypeProxy
-    args = None              # type: gqlspection.GQLArgs
-    is_deprecated = False    # type: bool
-    deprecation_reason = ''  # type: str
-    schema = None            # type: gqlspection.GQLSchema
+    name = ''
+    description = ''
+    kind  = None
+    type  = None
+    args = None
+    is_deprecated = False
+    deprecation_reason = ''
+    schema = None
 
     def __init__(self, name, kind, schema, description='', args=None, is_deprecated=False, deprecation_reason=''):
         self.name = name

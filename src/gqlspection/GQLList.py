@@ -6,8 +6,6 @@ try:
 except ImportError:
     from collections import Mapping  # type: ignore
 from collections import OrderedDict
-if False:
-    from typing import Optional  # noqa
 
 
 class GQLList(Mapping):
@@ -20,7 +18,7 @@ class GQLList(Mapping):
       - Allows selecting elements both by index (gqllist[3]) and by the 'name' (gqllist['some-name'])
       - GQLList is meant for read-only data, so there is no way to add, update, delete elements
     """
-    _elements = None  # type: Optional[OrderedDict]
+    _elements = None
 
     def __init__(self, elements):
         sorted_elements = sorted(elements, key=lambda i: i.name)

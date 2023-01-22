@@ -3,14 +3,12 @@ from __future__ import unicode_literals
 from builtins import object, str
 from gqlspection import log
 import gqlspection
-if False:
-    from typing import Union, Optional # noqa
 
 
 class GQLSchema(object):
-    types          = None  # type: Optional[None, gqlspection.GQLTypes]
-    query          = None  # type: Union[None, gqlspection.GQLType, gqlspection.GQLTypeProxy]
-    mutation       = None  # type: Optional[gqlspection.GQLType]
+    types          = None
+    query          = None
+    mutation       = None
 
     def __init__(self, url=None, extra_headers=None, json=None, logger=None):
         if logger:

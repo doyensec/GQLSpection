@@ -7,8 +7,8 @@ from .utils import safe_get_list
 
 
 class GQLWrapFactory(object):
-    schema = None  # type: gqlspection.GQLSchema
-    json   = None  # type: dict
+    schema = None
+    json   = None
 
     def __init__(self, schema, json):
         self.schema = schema
