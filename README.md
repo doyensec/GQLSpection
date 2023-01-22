@@ -33,6 +33,31 @@ $ rehash
 $ pre-commit install
 ```
 
+### Using runme
+
+Install `runme` from https://github.com/sigoden/runme (through `cargo install --force runme` or by grabbing a binary
+release). Get a list of preinstalled development commands by running `runme` in the source dir:
+
+```commandline
+$ runme
+USAGE: Runmefile.sh <COMMAND>
+
+COMMANDS:
+  deps                    Install development dependencies
+  test                    Run tests
+  jython.install          Install Jython to jython/
+  jython.clean            Cleanup after Jython
+  jython.test             Run tests to check Jython compatibility [aliases: jython]
+  lint                    Run linters
+  clean                   Cleanup bytecode and cache files
+  coverage.calculate      Run pytest with coverage calculation [aliases: coverage]
+  coverage.github_action  Generate comment body with coverage for Github Action
+  build                   Build the python release (files go to dist/)
+  publish.pypi            Publish release to PyPI
+  publish.github          Publish release to Github
+  release                 Make a new release
+```
+
 ## Usage of the CLI tool
 
 Load schema from file and print all query and mutation names in the schema:
