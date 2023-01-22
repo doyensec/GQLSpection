@@ -41,7 +41,11 @@ jobs:
         run: runme coverage.calculate
 
       - name: Update the coverage badge
-        run: runme coverage.update_badge
+        run: |
+          original=$(readlink -f pwd)
+          cp Runmefile.sh ..
+          cd ..
+          runme coverage.update_badge "$original"
 
   release:
     if: ${{ github.event.pull_request.merged == true }}
