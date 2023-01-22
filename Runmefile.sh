@@ -192,13 +192,14 @@ coverage.update_badge() {
   configure_git
 
   origin=$(git config --get remote.origin.url)
-  tempdir=$(mktemp -d); pushd $tempdir >/dev/null
+  tempdir=$(mktemp -d); pushd "$tempdir"
 
     # Get fresh copy of the repo
-    git clone $origin repo; cd repo
+    git clone "$origin" repo; cd repo
     git checkout coverage-badge
 
-    if [[ ! -f coverage.json ]]; then
+    if [[ -f coverage.json ]]; then
+      log "Found the file coverage.json with the following contents: $(echo; cat coverage.json)"
       err "Couldn't find the coverage.json file!"
       exit 1
     fi
@@ -209,11 +210,12 @@ coverage.update_badge() {
 
     # Commit and push changes
     git add coverage.json
-    git commit -m 'Update coverage stats for the badge'
+    # Be cautious, as the file created above could have been the same, so there are no changes and git will cause an error.
+    git diff-index --cached --quiet HEAD || git commit -m 'Update coverage stats for the badge'
     git push origin
 
-  popd >/dev/null
-  rm -rf $tempdir
+  popd
+  rm -rf "$tempdir"
 }
 
 # @cmd Build the python release (files go to dist/)
