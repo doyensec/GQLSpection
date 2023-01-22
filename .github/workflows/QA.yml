@@ -11,12 +11,13 @@ on:
 
 jobs:
   build:
-#    if: >
-#      github.event_name == 'push' || (
-#        github.event_name == 'pull_request' &&
-#        github.event.pull_request.head.repo.full_name == github.repository &&
-#        github.head_ref || github.ref_name
-#      )
+    # Avoid executing the same stuff twice: filter out pull requests from dev branch
+    if: >
+      github.event_name == 'push' || (
+        github.event_name == 'pull_request' &&
+        github.event.pull_request.head.repo.full_name == github.repository &&
+        github.head_ref == 'dev'
+      )
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -45,6 +46,13 @@ jobs:
         run: runme test
 
   jython:
+    # Avoid executing the same stuff twice: filter out pull requests from dev branch
+    if: >
+      github.event_name == 'push' || (
+        github.event_name == 'pull_request' &&
+        github.event.pull_request.head.repo.full_name == github.repository &&
+        github.head_ref == 'dev'
+      )
     name: Testing Jython compatibility
     runs-on: ubuntu-latest
     steps:
@@ -59,6 +67,13 @@ jobs:
         run: runme jython.test
 
   lint:
+    # Avoid executing the same stuff twice: filter out pull requests from dev branch
+    if: >
+      github.event_name == 'push' || (
+        github.event_name == 'pull_request' &&
+        github.event.pull_request.head.repo.full_name == github.repository &&
+        github.head_ref == 'dev'
+      )
     name: Extended build with linting and coverage
     runs-on: ubuntu-latest
     steps:
