@@ -200,6 +200,7 @@ coverage.update_badge() {
 
     if [[ -f coverage.json ]]; then
       log "Found the file coverage.json with the following contents: $(echo; cat coverage.json)"
+    else
       err "Couldn't find the coverage.json file!"
       exit 1
     fi
