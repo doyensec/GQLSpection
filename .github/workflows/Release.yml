@@ -43,6 +43,7 @@ jobs:
       - name: Update the coverage badge
         run: |
           original=$(readlink -f $(pwd))
+
           cp Runmefile.sh ..
           cd ..
           runme coverage.update_badge "$original"
