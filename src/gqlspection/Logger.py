@@ -1,32 +1,43 @@
 # coding: utf-8
 from __future__ import unicode_literals
-from builtins import object
 import logging
+import sys
 
 
-class Logger(object):
-    logger = None
-
-    def __init__(self):
-        logging.basicConfig()
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.WARNING)
-
-    def debug(self, msg, *args, **kwargs):
-        self.logger.debug(msg, *args, **kwargs)
-
-    def info(self, msg, *args, **kwargs):
-        self.logger.info(msg, *args, **kwargs)
-
-    def warn(self, msg, *args, **kwargs):
-        self.logger.warning(msg, *args, **kwargs)
-
-    def err(self, msg, *args, **kwargs):
-        self.logger.error(msg, *args, **kwargs)
-
-    @property
-    def is_debug(self):
-        return self.logger.level <= logging.DEBUG
+class DebugOrInfo(logging.Filter):
+    """Custom log filter that only matches DEBUG or INFO levels."""
+    def filter(self, rec):
+        return rec.levelno in (logging.DEBUG, logging.INFO)
 
 
-log = Logger()
+def get_logger():
+    """Returns centralized logger."""
+    logger = logging.getLogger('InQL')
+    set_log_level(logger, 'INFO')
+
+    return logger
+
+def set_log_level(log, level):
+    """Sets log level and generates handlers to pass DEBUG (if enabled) and INFO to stdout and WARN / ERR to stderr."""
+    log.setLevel(level)
+
+    formatter = logging.Formatter('[%(filename)s:%(lineno)d %(funcName)s()]    %(message)s')
+
+    handler_stdout = logging.StreamHandler(sys.stdout)
+    handler_stdout.setFormatter(formatter)
+    handler_stdout.setLevel(logging.DEBUG)
+    handler_stdout.addFilter(DebugOrInfo())
+
+    handler_stderr = logging.StreamHandler(sys.stderr)
+    handler_stderr.setFormatter(formatter)
+    handler_stderr.setLevel(logging.WARNING)
+
+    # Jython / Python 2.7 do not have log.handlers.clear(), but we can remove handlers like this:
+    del log.handlers[:]
+
+    log.addHandler(handler_stdout)
+    log.addHandler(handler_stderr)
+    
+# Centralized log handler that gets used across InQL
+log = get_logger()
+set_log_level(log, 'INFO')

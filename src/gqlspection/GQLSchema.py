@@ -1,6 +1,7 @@
 # coding: utf-8
 from __future__ import unicode_literals
-from builtins import object, str
+import json as j
+from gqlspection.six import text_type, ensure_text
 from gqlspection import log
 import gqlspection
 
@@ -10,13 +11,14 @@ class GQLSchema(object):
     query          = None
     mutation       = None
 
-    def __init__(self, url=None, extra_headers=None, json=None, logger=None):
-        if logger:
-            log.logger = logger
-
+    def __init__(self, url=None, extra_headers=None, json=None):
+        # type: (Optional[str], Optional[dict], Optional[str | dict]) -> None
+        log.debug("GQLSchema initialized.")
         if json:
-            if isinstance(json, str):
-                json = self._str_to_json(json)
+            if type(json) == text_type:
+                json = j.loads(json)
+            elif type(json) != dict:
+                raise Exception("GQLSchema: Couldn't parse provided JSON, it's not a string and not a dictionary.")
 
             if 'data' in json and '__schema' in json['data']:
                 original_schema = json['data']['__schema']
@@ -27,6 +29,7 @@ class GQLSchema(object):
             else:
                 raise Exception("GQLSchema: Couldn't parse JSON schema.")
         elif url:
+            url = ensure_text(url)
             introspection_result = self.send_request(url, extra_headers)
             original_schema = introspection_result['data']['__schema']
         else:
@@ -36,11 +39,6 @@ class GQLSchema(object):
 
         self.query    = self._extract_query_type(original_schema)
         self.mutation = self._extract_mutation_type(original_schema)
-
-    @staticmethod
-    def _str_to_json(data):
-        import json
-        return json.loads(data)
 
     def _extract_query_type(self, schema):
         """Get the query type name (typically 'Query').
@@ -79,7 +77,8 @@ class GQLSchema(object):
             if name:
                 return gqlspection.GQLTypeProxy(name, self)
             else:
-                raise None
+                log.warning("Couldn't find mutationType. This isn't allowed by the spec, but I'll let it slide.")
+                return None
         else:
             return None
 
@@ -90,7 +89,9 @@ class GQLSchema(object):
 
         headers = {'Content-Type': 'application/json'}
         if extra_headers:
-            headers.update(extra_headers)
+            for k, v in extra_headers:
+                k, v = ensure_text(k), ensure_text(v)
+                headers[k] = v
 
         result = requests.post(url, json={'query': get_introspection_query(minimize=minimize)}, headers=headers).json()
         if 'errors' in result:
@@ -99,15 +100,31 @@ class GQLSchema(object):
         return result
 
     def generate_query(self, name):
-        if isinstance(name, str):
+        if type(name) == text_type:
             field = self.query.fields[name]
         else:
             field = name
         return gqlspection.GQLQuery(self.query, 'query', fields=[field])
 
     def generate_mutation(self, name):
-        if isinstance(name, str):
+        if type(name) == text_type:
             field = self.query.fields[name]
         else:
             field = name
         return gqlspection.GQLQuery(self.mutation, 'mutation', fields=[field])
+
+    @property
+    def queries(self):
+        return (
+            gqlspection.GQLQuery(self.query, 'query', name=field.name, fields=[field])
+            for field in self.query.fields if field.name
+        )
+
+    @property
+    def mutations(self):
+        if not self.mutation:
+            return ()
+        return (
+            gqlspection.GQLQuery(self.mutation, 'mutation', name=field.name, fields=[field])
+            for field in self.mutation.fields if field.name
+        )

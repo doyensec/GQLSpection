@@ -33,9 +33,9 @@ def test_start(name, mode):
 
     # generate a string representing queries / mutations
     if mode == 'queries':
-        result = '\n'.join(schema.generate_query(field).str() for field in schema.query.fields)
+        result = '\n'.join(schema.generate_query(field).to_string() for field in schema.query.fields)
     else:
-        result = '\n'.join(schema.generate_mutation(field).str() for field in schema.mutation.fields)
+        result = '\n'.join(schema.generate_mutation(field).to_string() for field in schema.mutation.fields)
 
     print(type(result), type(expected_results))
 

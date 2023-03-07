@@ -1,10 +1,12 @@
 # coding: utf-8
 from __future__ import unicode_literals
-from builtins import object
 import gqlspection
+from gqlspection.six import python_2_unicode_compatible, ensure_text
 from gqlspection.utils import pad_string
+from gqlspection import log
 
 
+@python_2_unicode_compatible
 class GQLQuery(object):
     type    = None
     operation = ''
@@ -13,16 +15,17 @@ class GQLQuery(object):
     fields = None
 
     def __init__(self, gqltype, operation='query', name='', fields=None):
+        # type: (GQLType, str, str, Optional[GQLFields]) -> None
         self.fields = fields if fields else self.type.fields
-        self.operation = operation
-        self.name = name
+        self.operation = ensure_text(operation)
+        self.name = ensure_text(name)
         self.type = gqltype
 
     def __repr__(self):
-        self.str()
+        self.to_string()
 
     def __str__(self):
-        self.str()
+        self.to_string()
 
     @staticmethod
     def _indent(indent):
@@ -38,7 +41,7 @@ class GQLQuery(object):
 
         return SPACE, NEWLINE, PADDING
 
-    def str(self, pad=4):
+    def to_string(self, pad=4):
         """Generate a string representation.
 
         'indent' parameter defines number of space characters to use for indentation. Special values:
@@ -56,8 +59,11 @@ class GQLQuery(object):
 
         middle_lines = ""
         for field in self.fields:
+            if not field.name:
+                log.debug("Skipped a field because it does not have a name.")
+                continue
             subquery = gqlspection.GQLSubQuery(field)
-            middle_lines += NEWLINE.join(subquery.str(pad).splitlines()) + NEWLINE
+            middle_lines += NEWLINE.join(subquery.to_string(pad).splitlines()) + NEWLINE
         middle_lines = pad_string(middle_lines, pad)
 
         last_line = '}' if not self.type.kind.is_final else ""

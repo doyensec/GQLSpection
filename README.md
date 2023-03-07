@@ -101,7 +101,7 @@ Parse introspection schema from a JSON file and print all mutations:
 >>> data = json.loads(Path(FILE_NAME).read_text())
 >>> schema = GQLSchema(json=data)
 >>> for field in schema.mutation.fields:
->>>     print(schema.generate_mutation(field).str())
+>>>     print(schema.generate_mutation(field).to_string())
 ```
 
 ## Contributing

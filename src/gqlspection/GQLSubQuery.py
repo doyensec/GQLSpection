@@ -1,10 +1,11 @@
 # coding: utf-8
 from __future__ import unicode_literals
-from builtins import str, object
 import gqlspection
+from gqlspection.six import python_2_unicode_compatible, text_type
 from gqlspection.utils import pad_string
 
 
+@python_2_unicode_compatible
 class GQLSubQuery(object):
     field       = None
     name        = ''
@@ -12,15 +13,16 @@ class GQLSubQuery(object):
     max_depth   = 4
 
     def __init__(self, field, max_depth=5):
+        # type: (GQLField, int) -> None
         self.field        = field
         self.name         = field.name
         self.max_depth    = max_depth - 1
 
     def __repr__(self):
-        self.str()
+        self.to_string()
 
     def __str__(self):
-        self.str()
+        self.to_string()
 
     @staticmethod
     def _indent(indent):
@@ -36,7 +38,7 @@ class GQLSubQuery(object):
 
         return SPACE, NEWLINE, PADDING
 
-    def str(self, pad=4):
+    def to_string(self, pad=4):
         """Generate a string representation.
 
         'pad' parameter defines number of space characters to use for indentation. Special values:
@@ -46,7 +48,7 @@ class GQLSubQuery(object):
         # whitespace characters collapse when query gets minimized
         SPACE, NEWLINE, PADDING = self._indent(pad)
 
-        arguments = (',' + SPACE).join([str(x) for x in self.field.args])
+        arguments = (',' + SPACE).join([text_type(x) for x in self.field.args])
 
         first_line = ''.join((
             self.name,
@@ -58,7 +60,7 @@ class GQLSubQuery(object):
         if self.max_depth:
             for field in self.field.type.fields:
                 subquery = GQLSubQuery(field, max_depth=self.max_depth)
-                middle_lines += NEWLINE.join(subquery.str(pad).splitlines()) + NEWLINE
+                middle_lines += NEWLINE.join(subquery.to_string(pad).splitlines()) + NEWLINE
         else:
             # Max recursion depth reached
             middle_lines = '!!! MAX RECURSION DEPTH REACHED !!!' + NEWLINE

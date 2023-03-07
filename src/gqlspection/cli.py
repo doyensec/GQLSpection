@@ -7,7 +7,8 @@ try:
     from pathlib import Path
 except ImportError:
     from pathlib2 import Path
-from gqlspection import log, GQLSchema
+from gqlspection import log, set_log_level, GQLSchema
+from gqlspection.six import ensure_text
 
 click.disable_unicode_literals_warning = True
 
@@ -44,9 +45,12 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 def cli(file_=None, url=None, all_queries=False, all_mutations=False, query=None, mutation=None, stuff_to_print=None,
         verbose=False):
     if verbose:
-        import logging
-        log.logger.setLevel(logging.DEBUG)
+        set_log_level(log, 'DEBUG')
     try:
+        query = ensure_text(query) if query is not None else None
+        mutation = ensure_text(mutation) if mutation is not None else None
+        stuff_to_print = ensure_text(stuff_to_print) if stuff_to_print is not None else None
+
         run(file_, url, all_queries, all_mutations, query, mutation, stuff_to_print)
     except Exception:
         import traceback
@@ -78,7 +82,10 @@ def run(file_, url, all_queries, all_mutations, query, mutation, stuff_to_print)
             queries_to_print = (schema.query.fields[q] for q in query.split(','))
 
         for field in queries_to_print:
-            print(schema.generate_query(field).str(pad=4))
+            if field.name:
+                print(schema.generate_query(field).to_string(pad=4))
+            else:
+                log.debug("field skipped because it does not have name")
 
     # print mutations
     if schema.mutation and (all_mutations or mutation):
@@ -88,7 +95,10 @@ def run(file_, url, all_queries, all_mutations, query, mutation, stuff_to_print)
             mutations_to_print = (schema.mutation.fields[m] for m in mutation.split(','))
 
         for field in mutations_to_print:
-            print(schema.generate_mutation(field).str(pad=4))
+            if field.name:
+                print(schema.generate_mutation(field).to_string(pad=4))
+            else:
+                log.debug("field skipped because it does not have name")
 
 
 def parse_schema(file_, url):
@@ -99,7 +109,7 @@ def parse_schema(file_, url):
     elif url:
         return GQLSchema(url=url)
     else:
-        log.err("Either file or url should be provided.")
+        log.error("Either file or url should be provided.")
         sys.exit(1)
 
 

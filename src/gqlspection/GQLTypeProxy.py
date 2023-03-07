@@ -1,7 +1,7 @@
 # coding: utf-8
 from __future__ import unicode_literals
-from builtins import object
 from gqlspection import log
+from gqlspection.six import ensure_text, text_type
 import gqlspection
 
 
@@ -12,7 +12,8 @@ class GQLTypeProxy(object):
     max_depth = 4
 
     def __init__(self, name, schema):
-        self.name = name
+        # type: (str, GQLSchema) -> None
+        self.name = ensure_text(name)
         self.schema = schema
 
     @property
@@ -25,7 +26,8 @@ class GQLTypeProxy(object):
             self._upstream = self.schema.types[self.name]
             return self._upstream
         else:
-            if log.is_debug:
+            # TODO: expose this somehow through cli
+            if 'DEBUGGER' in globals:
                 import pdb
                 pdb.set_trace()
                 log.debug("Found an unknown type: '%s'. At this time following types are present in schema:", self.name)
