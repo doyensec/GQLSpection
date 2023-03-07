@@ -1,13 +1,15 @@
 # coding: utf-8
 from __future__ import unicode_literals
-from builtins import str
+
 try:
     from collections.abc import Mapping
 except ImportError:
     from collections import Mapping  # type: ignore
 from collections import OrderedDict
 
+from gqlspection.six import python_2_unicode_compatible, text_type
 
+@python_2_unicode_compatible
 class GQLList(Mapping):
     """A very specific data structure for internal use. Acts as an iterable in certain instances and a dict in others.
 
@@ -21,13 +23,14 @@ class GQLList(Mapping):
     _elements = None
 
     def __init__(self, elements):
+        # type: (Any) -> None
         sorted_elements = sorted(elements, key=lambda i: i.name)
         self._elements = OrderedDict(
             ((i.name, i) for i in sorted_elements)
         )
 
     def __getitem__(self, item):
-        if isinstance(item, str):
+        if type(item) == text_type:
             return self._elements[item]
         if type(item) == int:
             key = list(self._elements.keys())[item]
@@ -38,11 +41,11 @@ class GQLList(Mapping):
         return (self._elements[el] for el in self._elements)
 
     def __str__(self):
-        return '\n'.join((str(el) for el in self._elements))
+        return '\n'.join((text_type(el) for el in self._elements))
 
     def __repr__(self):
         first_line = "GQLList[{inner_type}]".format(
-            inner_type=str(type(self._elements[0]))
+            inner_type=text_type(type(self._elements[0]))
         )
 
         other_lines = ['    ' + repr(el) for el in self._elements]
@@ -56,7 +59,7 @@ class GQLList(Mapping):
         return len(self._elements)
 
     def __contains__(self, item):
-        if isinstance(item, str):
+        if type(item) == text_type:
             return item in list(self._elements.keys())
         else:
             return item in list(self._elements.values())

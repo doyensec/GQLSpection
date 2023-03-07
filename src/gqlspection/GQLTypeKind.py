@@ -1,7 +1,7 @@
 # coding: utf-8
 from __future__ import unicode_literals
-from builtins import object
 
+from gqlspection.six import ensure_text
 
 class GQLTypeKind(object):
     """Construct a type out of GraphQL schema fragment.
@@ -49,7 +49,8 @@ class GQLTypeKind(object):
     name = None
 
     def __init__(self, name, kind, modifiers=None):
-        self.name = name
+        # type: (str, GQLTypeKind, Optional[list[str]]) -> None
+        self.name = ensure_text(name)
         self.kind = kind
         self.modifiers = modifiers or []
 

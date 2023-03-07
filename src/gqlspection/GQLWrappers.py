@@ -1,6 +1,5 @@
 # coding: utf-8
 from __future__ import absolute_import, unicode_literals
-from builtins import object
 from gqlspection import log
 import gqlspection
 from .utils import safe_get_list
@@ -11,6 +10,7 @@ class GQLWrapFactory(object):
     json   = None
 
     def __init__(self, schema, json):
+        # type: (GQLSchema, dict) -> None
         self.schema = schema
         self.json = json
 

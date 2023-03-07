@@ -9,7 +9,6 @@ query IntrospectionQuery {
         # For some reason, spec does not force queryType[name] to be String!, but I don't think it can be null.
         queryType {
             name
-            }
         }
         # 'mutationType' can be null if there are no mutations.
         mutationType {
@@ -27,7 +26,7 @@ query IntrospectionQuery {
             fields(includeDeprecated: true) {
                 name
                 description
-                args(includeDeprecated: true) {
+                args%(args_includeDeprecated)s {
                     ... InputValue
                 }
                 type {
@@ -51,7 +50,7 @@ query IntrospectionQuery {
                 deprecationReason
             }
             # The following is only non-null for INPUT_OBJECT:
-            inputFields(includeDeprecated: true) {
+            inputFields%(inputFields_includeDeprecated)s {
                 ... InputValue
             }
             # The following is only non-null for LIST and NON_NULL:
@@ -59,7 +58,7 @@ query IntrospectionQuery {
                 ... TypeRef
             }
             # Only (optionally) non-null for custom scalars:
-            specifiedByURL
+            %(specifiedByURL)s
         }
     }
 }
@@ -108,10 +107,42 @@ fragment TypeRef on __Type {
 
 
 # TODO: 'depth' is ignored right now, fix it
-def get_introspection_query(depth=4, minimize=True):
+def get_introspection_query(version='draft', depth=4, minimize=True):
     """Construct the introspection query and optionally minimize it."""
-    from gqlspection.utils import minimize_query
-    if minimize:
-        return minimize_query(__documented_introspection_query)
+    if version == 'draft':
+        # https://spec.graphql.org/draft/
+        # Args and inputFields have includeDeprecated selector
+        query = __documented_introspection_query % {
+            'args_includeDeprecated': '(includeDeprecated: true) ',
+            'inputFields_includeDeprecated': '(includeDeprecated: true)',
+            'specifiedByURL': 'specifiedByURL'
+        }
+    elif version == 'oct2021':
+        # https://spec.graphql.org/October2021/
+        # Args and inputFields can't have includeDeprecated, but specifiedByURL exists
+        query = __documented_introspection_query % {
+            'args_includeDeprecated': '',
+            'inputFields_includeDeprecated': '',
+            'specifiedByURL': 'specifiedByURL'
+        }
+    elif version == 'jun2018':
+        # https://spec.graphql.org/June2018/
+        # No includeDeprecated and no specifiedByURL either
+        query = __documented_introspection_query % {
+            'args_includeDeprecated': '',
+            'inputFields_includeDeprecated': '',
+            'specifiedByURL': ''
+        }
     else:
-        return __documented_introspection_query
+        raise Exception("Version '%s' is invalid." % version)
+
+    return _get_introspection_query(query, depth, minimize)
+
+def _get_introspection_query(query, depth=4, minimize=True):
+    from gqlspection.utils import minimize_query
+
+    if minimize:
+        return minimize_query(query)
+    else:
+        return query
+

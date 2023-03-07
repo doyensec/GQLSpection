@@ -1,6 +1,6 @@
 # coding: utf-8
 from __future__ import unicode_literals
-from gqlspection.Logger import log
+from gqlspection.Logger import log, set_log_level
 
 from gqlspection.GQLArg import GQLArg
 from gqlspection.GQLEnum import GQLEnum
@@ -16,6 +16,7 @@ from gqlspection.GQLWrappers import GQLWrapFactory, GQLArgs, GQLEnums, GQLInterf
 
 __all__ = [
     "log",
+    "set_log_level",
     "utils",
     "GQLArg",
     "GQLEnum",

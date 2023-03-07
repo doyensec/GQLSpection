@@ -1,7 +1,7 @@
 # coding: utf-8
 from __future__ import unicode_literals
-from builtins import str, object
 import gqlspection
+from gqlspection.six import ensure_text, text_type
 
 
 class GQLType(object):
@@ -16,12 +16,13 @@ class GQLType(object):
     url = ''
 
     def __init__(self, name, kind, schema, description='', fields=None, interfaces=None, enums=None, args=None, url=''):
-        self.name = name
+        # type: (str, GQLTypeKind, GQLSchema, str, GQLFields, GQLInterfaces, GQLEnums, GQLArgs, str) -> None
+        self.name = ensure_text(name)
         self.kind = kind
         self.schema = schema
         # Optional strings
-        self.description = description
-        self.url         = url
+        self.description = ensure_text(description)
+        self.url         = ensure_text(url)
         # Optional GQLWrappers
         self.args       = args       or gqlspection.GQLArgs(schema, {})
         self.fields     = fields     or gqlspection.GQLFields(schema, {})
@@ -36,14 +37,14 @@ class GQLType(object):
             name=json['name'],
             kind=gqlspection.GQLTypeKind.from_json(json),
             schema=schema,
-            description=json.get('description', ''),
+            description=json.get('description', '') or '',
 
             fields     = wrap.fields(),
             interfaces = wrap.interfaces(),
             enums      = wrap.enums(),
             args       = wrap.args(),
 
-            url=json.get('specifiedByURL', '')
+            url=json.get('specifiedByURL', '') or ''
         )
 
     def __repr__(self):
@@ -52,8 +53,8 @@ class GQLType(object):
             name        = self.name,
             kind        = self.kind.kind,
             description = self.description,
-            fields      = ', '.join([str(x) for x in self.fields]),
-            interfaces  = ', '.join([str(x) for x in self.interfaces]),
-            enums       = ', '.join([str(x) for x in self.enums]),
-            args        = ', '.join([str(x) for x in self.args])
+            fields      = ', '.join([text_type(x) for x in self.fields]),
+            interfaces  = ', '.join([text_type(x) for x in self.interfaces]),
+            enums       = ', '.join([text_type(x) for x in self.enums]),
+            args        = ', '.join([text_type(x) for x in self.args])
         )

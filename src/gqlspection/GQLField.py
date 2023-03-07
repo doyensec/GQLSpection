@@ -1,7 +1,7 @@
 # coding: utf-8
 from __future__ import unicode_literals
-from builtins import object
 import gqlspection
+from gqlspection.six import ensure_text
 
 # FIXME: Add support for InputFields
 
@@ -17,14 +17,15 @@ class GQLField(object):
     schema = None
 
     def __init__(self, name, kind, schema, description='', args=None, is_deprecated=False, deprecation_reason=''):
-        self.name = name
+        # type: (str, GQLTypeKind, GQLSchema, str, Optional[GQLArgs], bool, str) -> None
+        self.name = ensure_text(name)
         self.kind = kind
         self.type = gqlspection.GQLTypeProxy(kind.name, schema)
         self.schema = schema
-        self.description = description
+        self.description = ensure_text(description)
         self.args = args or gqlspection.GQLArgs(schema, {})
         self.is_deprecated = is_deprecated
-        self.deprecation_reason = deprecation_reason
+        self.deprecation_reason = ensure_text(deprecation_reason)
 
     @staticmethod
     def _wrap_args(json, schema):
@@ -39,8 +40,8 @@ class GQLField(object):
             name=field['name'],
             kind=gqlspection.GQLTypeKind.from_json(field['type']),
             schema=schema,
-            description=field.get('description', ''),
+            description=field.get('description', '') or '',
             args=GQLField._wrap_args(field, schema),
-            is_deprecated=field.get('isDeprecated', False),
-            deprecation_reason=field.get('deprecationReason', '')
+            is_deprecated=field.get('isDeprecated', False) or False,
+            deprecation_reason=field.get('deprecationReason', '') or ''
         )
