@@ -13,13 +13,14 @@ from gqlspection import GQLSchema
 def pytest_generate_tests(metafunc):
     if 'name' in metafunc.fixturenames:
         pwd = Path(__file__).parent
-        names = (x.stem for x in pwd.glob('parsing/*.json'))
+        names = (x.stem for x in pwd.glob('recursion/*.json'))
+
         metafunc.parametrize("name", names)
-        metafunc.parametrize("mode", ('queries', 'mutations'))
+        metafunc.parametrize("mode", (1, 2))
 
 
 def test_start(name, mode):
-    pwd = Path(__file__).parent / 'parsing'
+    pwd = Path(__file__).parent / 'recursion'
 
     # Load expected results (if the file is present)
     path = pwd / "{}.{}.txt".format(name, mode)
@@ -32,11 +33,7 @@ def test_start(name, mode):
     schema = GQLSchema(json=path.read_text())
 
     # generate a string representing queries / mutations
-    if mode == 'queries':
-        result = '\n'.join(schema.generate_query(field).to_string() for field in schema.query.fields)
-    else:
-        result = '\n'.join(schema.generate_mutation(field).to_string() for field in schema.mutation.fields)
+    result = '\n'.join(schema.generate_query(field, depth=mode).to_string() for field in schema.query.fields)
 
     print(type(result), type(expected_results))
-
     assert result.strip() == expected_results.strip()

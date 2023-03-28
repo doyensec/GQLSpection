@@ -23,7 +23,7 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
     '-u', '--url', help="URL of the GraphQL endpoint with enabled introspection."
 )
 @click.option(
-    '-l', '--list', 'stuff_to_print', help="Parse GraphQL schema and list queries, mutations or both of them (valid "
+    '-l', '--list', 'list_available', help="Parse GraphQL schema and list queries, mutations or both of them (valid "
                                            "values are: 'queries', 'mutations' or 'all')."
 )
 @click.option(
@@ -40,13 +40,16 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
                                                 "printed)."
 )
 @click.option(
+    '-d', '--depth', default=4, help="Query depth, limits recursion (default: 4)."
+)
+@click.option(
     '-v', '--verbose', is_flag=True, help="Enable verbose logging."
 )
 @click.option(
     '-g', '--debug', is_flag=True, help="Enable debug logging."
 )
-def cli(file_=None, url=None, all_queries=False, all_mutations=False, query=None, mutation=None, stuff_to_print=None,
-        verbose=False, debug=False):
+def cli(file_=None, url=None, all_queries=False, all_mutations=False, query=None, mutation=None, list_available=None,
+        depth=4, verbose=False, debug=False):
     if verbose:
         set_log_level(log, 'INFO')
     if debug:
@@ -54,9 +57,9 @@ def cli(file_=None, url=None, all_queries=False, all_mutations=False, query=None
     try:
         query = ensure_text(query) if query is not None else None
         mutation = ensure_text(mutation) if mutation is not None else None
-        stuff_to_print = ensure_text(stuff_to_print) if stuff_to_print is not None else None
+        list_available = ensure_text(list_available) if list_available is not None else None
 
-        run(file_, url, all_queries, all_mutations, query, mutation, stuff_to_print)
+        run(file_, url, all_queries, all_mutations, query, mutation, list_available, depth)
     except Exception:
         import traceback
         traceback.print_exc()
@@ -65,11 +68,11 @@ def cli(file_=None, url=None, all_queries=False, all_mutations=False, query=None
     sys.exit(0)
 
 
-def run(file_, url, all_queries, all_mutations, query, mutation, stuff_to_print):
+def run(file_, url, all_queries, all_mutations, query, mutation, list_available, depth):
     schema = parse_schema(file_, url)
 
-    if stuff_to_print:
-        print_available_stuff(schema, stuff_to_print)
+    if list_available:
+        print_available_stuff(schema, list_available)
         return
 
     # if explicit queries (-q) or mutations (-m) provided, they take priority
@@ -88,7 +91,7 @@ def run(file_, url, all_queries, all_mutations, query, mutation, stuff_to_print)
 
         for field in queries_to_print:
             if field.name:
-                print(schema.generate_query(field).to_string(pad=4))
+                print(schema.generate_query(field, depth).to_string(pad=4))
             else:
                 log.debug("field skipped because it does not have name")
 
@@ -101,7 +104,7 @@ def run(file_, url, all_queries, all_mutations, query, mutation, stuff_to_print)
 
         for field in mutations_to_print:
             if field.name:
-                print(schema.generate_mutation(field).to_string(pad=4))
+                print(schema.generate_mutation(field, depth).to_string(pad=4))
             else:
                 log.debug("field skipped because it does not have name")
 
@@ -118,12 +121,12 @@ def parse_schema(file_, url):
         sys.exit(1)
 
 
-def print_available_stuff(schema, stuff_to_print):
+def print_available_stuff(schema, list_available):
     # List stuff if that's what we're asked to do
-    if stuff_to_print in ('queries', 'all'):
+    if list_available in ('queries', 'all'):
         for query in schema.query.fields:
             # TODO: Would be nice to print a full prototype (with args) here
             print("query %s" % query.name)
-    if stuff_to_print in ('mutations', 'all') and schema.mutation:
+    if list_available in ('mutations', 'all') and schema.mutation:
         for mutation in schema.mutation.fields:
             print("mutation %s" % mutation.name)

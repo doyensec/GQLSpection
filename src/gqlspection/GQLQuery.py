@@ -14,12 +14,14 @@ class GQLQuery(object):
     description = ''
     fields = None
 
-    def __init__(self, gqltype, operation='query', name='', fields=None):
+    def __init__(self, gqltype, operation='query', name='', fields=None, depth=4):
         # type: (GQLType, str, str, Optional[GQLFields]) -> None
+
         self.fields = fields if fields else self.type.fields
         self.operation = ensure_text(operation)
         self.name = ensure_text(name)
         self.type = gqltype
+        self.depth = depth
 
     def __repr__(self):
         self.to_string()
@@ -60,9 +62,9 @@ class GQLQuery(object):
         middle_lines = ""
         for field in self.fields:
             if not field.name:
-                log.debug("Skipped a field because it does not have a name.")
+                log.warning("Skipped a field because it does not have a name.")
                 continue
-            subquery = gqlspection.GQLSubQuery(field)
+            subquery = gqlspection.GQLSubQuery(field, depth=self.depth)
             middle_lines += NEWLINE.join(subquery.to_string(pad).splitlines()) + NEWLINE
         middle_lines = pad_string(middle_lines, pad)
 

@@ -99,19 +99,19 @@ class GQLSchema(object):
 
         return result
 
-    def generate_query(self, name):
+    def generate_query(self, name, depth=4):
         if type(name) == text_type:
             field = self.query.fields[name]
         else:
             field = name
-        return gqlspection.GQLQuery(self.query, 'query', fields=[field])
+        return gqlspection.GQLQuery(self.query, 'query', fields=[field], depth=depth)
 
-    def generate_mutation(self, name):
+    def generate_mutation(self, name, depth=4):
         if type(name) == text_type:
             field = self.query.fields[name]
         else:
             field = name
-        return gqlspection.GQLQuery(self.mutation, 'mutation', fields=[field])
+        return gqlspection.GQLQuery(self.mutation, 'mutation', fields=[field], depth=depth)
 
     @property
     def queries(self):

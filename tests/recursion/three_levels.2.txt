@@ -1,0 +1,13 @@
+query {
+    user {
+        account {
+            active
+            # balance {}
+        }
+        id
+        name {
+            first
+            last
+        }
+    }
+}

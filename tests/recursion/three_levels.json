@@ -1,0 +1,118 @@
+{
+    "__schema": {
+        "queryType": {
+            "name": "Query"
+        },
+        "types": [
+            {
+                "name": "User",
+                "kind": "OBJECT",
+                "fields": [
+                    {
+                        "name": "account",
+                        "args": [],
+                        "type": {
+                            "name": "Account",
+                            "kind": "OBJECT"
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "args": [],
+                        "type": {
+                            "name": "ID",
+                            "kind": "SCALAR"
+                        }
+                    },
+                    {
+                        "name": "name",
+                        "args": [],
+                        "type": {
+                            "name": "Name",
+                            "kind": "OBJECT"
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "Account",
+                "kind": "OBJECT",
+                "fields": [
+                    {
+                        "name": "active",
+                        "args": [],
+                        "type": {
+                            "name": "Boolean",
+                            "kind": "SCALAR"
+                        }
+                    },
+                    {
+                        "name": "balance",
+                        "args": [],
+                        "type": {
+                            "name": "Balance",
+                            "kind": "OBJECT"
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "Name",
+                "kind": "OBJECT",
+                "fields": [
+                    {
+                        "name": "first",
+                        "args": [],
+                        "type": {
+                            "name": "String",
+                            "kind": "SCALAR"
+                        }
+                    },
+                    {
+                        "name": "last",
+                        "args": [],
+                        "type": {
+                            "name": "String",
+                            "kind": "SCALAR"
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "Balance",
+                "kind": "OBJECT",
+                "fields": [
+                    {
+                        "name": "active",
+                        "args": [],
+                        "type": {
+                            "name": "Boolean",
+                            "kind": "SCALAR"
+                        }
+                    },
+                    {
+                        "name": "moneyz",
+                        "args": [],
+                        "type": {
+                            "name": "Int",
+                            "kind": "SCALAR"
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "Query",
+                "kind": "OBJECT",
+                "fields": [
+                    {
+                        "name": "user",
+                        "type": {
+                            "name": "User",
+                            "kind": "OBJECT"
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}

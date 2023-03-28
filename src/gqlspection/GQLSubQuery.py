@@ -10,13 +10,13 @@ class GQLSubQuery(object):
     field       = None
     name        = ''
     description = ''
-    max_depth   = 4
+    depth       = 4
 
-    def __init__(self, field, max_depth=5):
+    def __init__(self, field, depth=4):
         # type: (GQLField, int) -> None
         self.field        = field
         self.name         = field.name
-        self.max_depth    = max_depth - 1
+        self.depth        = depth - 1
 
     def __repr__(self):
         self.to_string()
@@ -38,6 +38,15 @@ class GQLSubQuery(object):
 
         return SPACE, NEWLINE, PADDING
 
+    def _render_arguments(self, SPACE):
+        # In GraphQL all fields can have arguments, even scalars
+        args = (',' + SPACE).join([text_type(x) for x in self.field.args])
+        return "({args})".format(args=args) if args else ""
+
+    def _render_description(self):
+        return gqlspection.utils.format_comment(self.description)
+
+    # FIXME: pad parameter in this function isn't used as described in comments, figure out if it's even necessary
     def to_string(self, pad=4):
         """Generate a string representation.
 
@@ -48,33 +57,32 @@ class GQLSubQuery(object):
         # whitespace characters collapse when query gets minimized
         SPACE, NEWLINE, PADDING = self._indent(pad)
 
-        arguments = (',' + SPACE).join([text_type(x) for x in self.field.args])
+        # Handle a simple type like scalar or enum (no curly braces)
+        if self.field.type.kind.is_final:
+            # Return field_name(potential: arguments, if: any)\n
+            return self.name + self._render_arguments(SPACE) + NEWLINE
+        # Handle a complicated field type involving curly braces
 
-        first_line = ''.join((
-            self.name,
-            "({arguments})".format(arguments=arguments) if arguments else "",
-            (SPACE + "{" + NEWLINE) if not self.field.type.kind.is_final else NEWLINE
-        ))
+        # Did we reach the depth limit?
+        if self.depth < 0:
+            if pad:
+                # Write a comment to hint at the absent fields not included due to reached depth limit
+                return '#' + SPACE + self.name + self._render_arguments(SPACE) + ' {}' + NEWLINE
+            else:
+                # Minimized query, no comments
+                return ''
+
+        # Otherwise initiate recursion
+        first_line = self.name + self._render_arguments(SPACE) + SPACE + '{' + NEWLINE
 
         middle_lines = ''
-        if self.max_depth:
-            for field in self.field.type.fields:
-                subquery = GQLSubQuery(field, max_depth=self.max_depth)
-                middle_lines += NEWLINE.join(subquery.to_string(pad).splitlines()) + NEWLINE
-        else:
-            # Max recursion depth reached
-            middle_lines = '!!! MAX RECURSION DEPTH REACHED !!!' + NEWLINE
+        for field in self.field.type.fields:
+            subquery = GQLSubQuery(field, depth=self.depth)
+            middle_lines += NEWLINE.join(subquery.to_string(pad).splitlines()) + NEWLINE
         middle_lines = pad_string(middle_lines, pad)
 
-        last_line = '}' + NEWLINE if not self.field.type.kind.is_final else ""
+        last_line = '}' + NEWLINE
 
-        if pad:
-            if self.description:
-                description_line = gqlspection.utils.format_comment(self.description) + NEWLINE
-            else:
-                description_line = ''
-            result = description_line + first_line + middle_lines + last_line
-        else:
-            result = first_line + middle_lines + last_line
-
-        return result
+        if pad and self.description:
+            return self._render_description() + NEWLINE + first_line + middle_lines + last_line
+        return first_line + middle_lines + last_line
