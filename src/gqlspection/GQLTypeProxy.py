@@ -27,7 +27,7 @@ class GQLTypeProxy(object):
             return self._upstream
         else:
             # TODO: expose this somehow through cli
-            if 'DEBUGGER' in globals:
+            if 'DEBUGGER' in globals():
                 import pdb
                 pdb.set_trace()
                 log.debug("Found an unknown type: '%s'. At this time following types are present in schema:", self.name)

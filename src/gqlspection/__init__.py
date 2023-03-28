@@ -12,7 +12,7 @@ from gqlspection.GQLSubQuery import GQLSubQuery
 from gqlspection.GQLType import GQLType
 from gqlspection.GQLTypeKind import GQLTypeKind
 from gqlspection.GQLTypeProxy import GQLTypeProxy
-from gqlspection.GQLWrappers import GQLWrapFactory, GQLArgs, GQLEnums, GQLInterfaces, GQLFields, GQLTypes
+from gqlspection.GQLWrappers import GQLWrapFactory, GQLArgs, GQLEnums, GQLUnions, GQLInterfaces, GQLFields, GQLTypes
 
 __all__ = [
     "log",
@@ -31,6 +31,7 @@ __all__ = [
     "GQLWrapFactory",
     "GQLArgs",
     "GQLEnums",
+    "GQLUnions",
     "GQLInterfaces",
     "GQLFields",
     "GQLTypes"

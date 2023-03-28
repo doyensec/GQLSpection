@@ -1,0 +1,111 @@
+{
+    "__schema": {
+        "queryType": {
+            "name": "Query"
+        },
+        "types": [
+            {
+                "name": "User",
+                "kind": "OBJECT",
+                "fields": [
+                    {
+                        "name": "name",
+                        "args": [],
+                        "type": {
+                            "name": "String",
+                            "kind": "SCALAR"
+                        }
+                    },
+                    {
+                        "name": "enabled",
+                        "args": [],
+                        "type": {
+                            "name": "Toggle",
+                            "kind": "UNION"
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "Query",
+                "kind": "OBJECT",
+                "fields": [
+                    {
+                        "name": "debug",
+                        "type": {
+                            "name": "Toggle",
+                            "kind": "UNION"
+                        }
+                    },
+                    {
+                        "name": "user",
+                        "type": {
+                            "name": "User",
+                            "kind": "OBJECT"
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "Toggle",
+                "kind": "UNION",
+                "possibleTypes": [
+                    {
+                        "name": "ToggleBoolean",
+                        "kind": "OBJECT"
+                    },
+                    {
+                        "name": "ToggleAudit",
+                        "kind": "OBJECT"
+                    }
+                ]
+            },
+            {
+                "name": "ToggleBoolean",
+                "kind": "OBJECT",
+                "fields": [
+                    {
+                        "name": "boolean_toggle",
+                        "type": {
+                            "name": "Boolean",
+                            "kind": "SCALAR"
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "ToggleAudit",
+                "kind": "OBJECT",
+                "fields": [
+                    {
+                        "name": "int_toggle",
+                        "type": {
+                            "name": "Int",
+                            "kind": "SCALAR"
+                        }
+                    },
+                    {
+                        "name": "set_by",
+                        "type": {
+                            "name": "SetBy",
+                            "kind": "OBJECT"
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "SetBy",
+                "kind": "OBJECT",
+                "fields": [
+                    {
+                        "name": "admin",
+                        "type": {
+                            "name": "String",
+                            "kind": "SCALAR"
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}

@@ -23,6 +23,9 @@ class GQLWrapFactory(object):
     def enums(self):
         return GQLEnums(self.schema, self.json)
 
+    def unions(self):
+        return GQLUnions(self.schema, self.json)
+
     def args(self):
         return GQLArgs(self.schema, self.json)
 
@@ -99,6 +102,12 @@ class GQLEnums(GQLWrapper):
     @staticmethod
     def _extract_elements(schema, json):
         return (gqlspection.GQLEnum.from_json(enum) for enum in safe_get_list(json, 'enumValues'))
+
+
+class GQLUnions(GQLWrapper):
+    @staticmethod
+    def _extract_elements(schema, json):
+        return (gqlspection.GQLTypeProxy(enum['name'], schema) for enum in safe_get_list(json, 'possibleTypes'))
 
 
 class GQLArgs(GQLWrapper):

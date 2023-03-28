@@ -1,0 +1,33 @@
+query {
+    debug {
+        ... on ToggleAudit {
+            __typename
+            int_toggle
+            set_by {
+                admin
+            }
+        }
+        ... on ToggleBoolean {
+            __typename
+            boolean_toggle
+        }
+    }
+}
+query {
+    user {
+        enabled {
+            ... on ToggleAudit {
+                __typename
+                int_toggle
+                set_by {
+                    admin
+                }
+            }
+            ... on ToggleBoolean {
+                __typename
+                boolean_toggle
+            }
+        }
+        name
+    }
+}

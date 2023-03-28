@@ -63,6 +63,28 @@ class GQLSubQuery(object):
             return self.name + self._render_arguments(SPACE) + NEWLINE
         # Handle a complicated field type involving curly braces
 
+        # Handle a Union
+        if self.field.kind.kind == 'UNION':
+            first_line = self.name + self._render_arguments(SPACE) + SPACE + '{' + NEWLINE
+
+            middle = ''
+            for union in self.field.type.unions:
+                union_first_line = '... on ' + union.name + SPACE + '{' + NEWLINE
+
+                union_middle_lines = '__typename' + NEWLINE
+                for field in union.fields:
+                    subquery = GQLSubQuery(field, depth=self.depth + 1)
+                    union_middle_lines += NEWLINE.join(subquery.to_string(pad).splitlines()) + NEWLINE
+                union_middle_lines = pad_string(union_middle_lines, pad)
+
+                union_last_line = '}' + NEWLINE
+                middle += union_first_line + union_middle_lines + union_last_line
+            middle = pad_string(middle, pad)
+
+            last_line = '}' + NEWLINE
+
+            return first_line + middle + last_line
+
         # Did we reach the depth limit?
         if self.depth < 0:
             if pad:
@@ -72,7 +94,7 @@ class GQLSubQuery(object):
                 # Minimized query, no comments
                 return ''
 
-        # Otherwise initiate recursion
+        # Initiate recursion
         first_line = self.name + self._render_arguments(SPACE) + SPACE + '{' + NEWLINE
 
         middle_lines = ''

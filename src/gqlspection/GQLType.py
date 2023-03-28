@@ -12,10 +12,11 @@ class GQLType(object):
     fields = None
     interfaces = None
     enums = None
+    unions = None
     args = None
     url = ''
 
-    def __init__(self, name, kind, schema, description='', fields=None, interfaces=None, enums=None, args=None, url=''):
+    def __init__(self, name, kind, schema, description='', fields=None, interfaces=None, enums=None, unions=None, args=None, url=''):
         # type: (str, GQLTypeKind, GQLSchema, str, GQLFields, GQLInterfaces, GQLEnums, GQLArgs, str) -> None
         self.name = ensure_text(name)
         self.kind = kind
@@ -28,6 +29,7 @@ class GQLType(object):
         self.fields     = fields     or gqlspection.GQLFields(schema, {})
         self.interfaces = interfaces or gqlspection.GQLInterfaces(schema, {})
         self.enums      = enums      or gqlspection.GQLEnums(schema, {})
+        self.unions     = unions     or gqlspection.GQLUnions(schema, {})
 
     @staticmethod
     def from_json(json, schema):
@@ -42,6 +44,7 @@ class GQLType(object):
             fields     = wrap.fields(),
             interfaces = wrap.interfaces(),
             enums      = wrap.enums(),
+            unions     = wrap.unions(),
             args       = wrap.args(),
 
             url=json.get('specifiedByURL', '') or ''
