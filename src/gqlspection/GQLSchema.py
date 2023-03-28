@@ -72,7 +72,9 @@ class GQLSchema(object):
                 }
             }
         """
-        if 'mutationType' in schema:
+        # According to GraphQL spec mutationType should always be present, but some tools like
+        # https://github.com/nikitastupin/clairvoyance omit it anyway.
+        if 'mutationType' in schema and schema['mutationType']:
             name = schema['mutationType'].get('name', None)
             if name:
                 return gqlspection.GQLTypeProxy(name, self)
