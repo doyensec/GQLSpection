@@ -40,4 +40,4 @@ def set_log_level(log, level):
     
 # Centralized log handler that gets used across InQL
 log = get_logger()
-set_log_level(log, 'INFO')
+set_log_level(log, 'WARNING')

@@ -42,9 +42,14 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 @click.option(
     '-v', '--verbose', is_flag=True, help="Enable verbose logging."
 )
+@click.option(
+    '-g', '--debug', is_flag=True, help="Enable debug logging."
+)
 def cli(file_=None, url=None, all_queries=False, all_mutations=False, query=None, mutation=None, stuff_to_print=None,
-        verbose=False):
+        verbose=False, debug=False):
     if verbose:
+        set_log_level(log, 'INFO')
+    if debug:
         set_log_level(log, 'DEBUG')
     try:
         query = ensure_text(query) if query is not None else None
