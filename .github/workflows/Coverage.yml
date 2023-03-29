@@ -38,7 +38,7 @@ jobs:
           if gh pr view ${{ github.event.number }} --json comments -q '.[][].author.login == "github-actions"' | grep -q true; then
             echo "Modify existing comment"
             runme coverage.github_action | gh pr comment ${{ github.event.number }} --edit-last --body-file -
-          else 
+          else
             echo "Create a new comment"
             runme coverage.github_action | gh pr comment ${{ github.event.number }} --body-file -
           fi

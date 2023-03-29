@@ -16,7 +16,8 @@ class GQLType(object):
     args = None
     url = ''
 
-    def __init__(self, name, kind, schema, description='', fields=None, interfaces=None, enums=None, unions=None, args=None, url=''):
+    def __init__(self, name, kind, schema, description='', fields=None, interfaces=None, enums=None, unions=None,
+                 args=None, url=''):
         # type: (str, GQLTypeKind, GQLSchema, str, GQLFields, GQLInterfaces, GQLEnums, GQLArgs, str) -> None
         self.name = ensure_text(name)
         self.kind = kind

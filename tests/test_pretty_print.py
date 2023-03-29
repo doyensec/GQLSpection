@@ -1,3 +1,4 @@
+# coding: utf-8
 from gqlspection.utils import pretty_print_graphql
 
 simple = """

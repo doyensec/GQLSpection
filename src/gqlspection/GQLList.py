@@ -9,6 +9,7 @@ from collections import OrderedDict
 
 from gqlspection.six import python_2_unicode_compatible, text_type
 
+
 @python_2_unicode_compatible
 class GQLList(Mapping):
     """A very specific data structure for internal use. Acts as an iterable in certain instances and a dict in others.

@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from gqlspection.six import ensure_text
 
+
 class GQLTypeKind(object):
     """Construct a type out of GraphQL schema fragment.
 

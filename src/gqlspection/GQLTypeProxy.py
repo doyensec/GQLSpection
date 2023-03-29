@@ -1,7 +1,7 @@
 # coding: utf-8
 from __future__ import unicode_literals
 from gqlspection import log
-from gqlspection.six import ensure_text, text_type
+from gqlspection.six import ensure_text
 import gqlspection
 
 

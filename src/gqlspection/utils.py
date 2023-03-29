@@ -103,7 +103,7 @@ def pretty_print_graphql(minimized, spaces=2):
         if was_in_string:
             # Preserve strings verbatim, just check whether current char is backslash
             pretty += c
-            escaped = (c == "\\") 
+            escaped = (c == "\\")
             continue
 
         #
@@ -116,7 +116,7 @@ def pretty_print_graphql(minimized, spaces=2):
             pretty += ' ='
             # space on the right will get added on next iteration, but if there was preexisting
             # whitespace all of it will get collapsed into a single char
-            in_space = True  
+            in_space = True
             continue
 
         # Make sure there's space on the left of {
@@ -149,7 +149,7 @@ def pretty_print_graphql(minimized, spaces=2):
             #
             # In 1-3 we should keep spaces until first '{' and then add newlines
             # In 4 we should just do nothing as newline will be added elsewhere
-    
+
             if (keep_spaces or
                     (pretty[-1] in (':', '(')) or
                     (not level) or
@@ -199,7 +199,7 @@ def pretty_print_graphql(minimized, spaces=2):
         pretty += c
 
     return pretty
-        
+
 
 def format_comment(string, max_length=60):
     # Split the string into lines

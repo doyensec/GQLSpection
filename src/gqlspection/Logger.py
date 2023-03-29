@@ -17,6 +17,7 @@ def get_logger():
 
     return logger
 
+
 def set_log_level(log, level):
     """Sets log level and generates handlers to pass DEBUG (if enabled) and INFO to stdout and WARN / ERR to stderr."""
     log.setLevel(level)
@@ -37,7 +38,8 @@ def set_log_level(log, level):
 
     log.addHandler(handler_stdout)
     log.addHandler(handler_stderr)
-    
+
+
 # Centralized log handler that gets used across InQL
 log = get_logger()
 set_log_level(log, 'WARNING')
