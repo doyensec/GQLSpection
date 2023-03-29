@@ -144,16 +144,20 @@ def pretty_print_graphql(minimized, spaces=2):
             #
             #   1. we see ':' before the space (alias)
             #   2. we see '(' before the space (various arguments)
-            #   3. we are at the outmost context (no {} around us)
-            #   4. we see '@' as  first char *after* the space
+            #   3. we see '@' as  first char *after* the space
+            #   4. we are at the outmost context (no {} around us)
             #
-            # In all of these cases we should keep spaces until first '{' and the add newlines
+            # In 1-3 we should keep spaces until first '{' and then add newlines
+            # In 4 we should just do nothing as newline will be added elsewhere
     
-            if keep_spaces or pretty[-1] in (':', '(') or not level or c in ('@', '}'):
-                # match one of the heuristics above, add newline
+            if (keep_spaces or
+                    (pretty[-1] in (':', '(')) or
+                    (not level) or
+                    (c == '@')):
+                # match one of the heuristics above, keep spaces until first '{'
                 keep_spaces = True
                 pretty += ' '
-            else:
+            elif c != '}':
                 pretty += '\n' + ' ' * (level * spaces)
         # Mark the end of whitespace string
         in_space = False
@@ -181,7 +185,7 @@ def pretty_print_graphql(minimized, spaces=2):
                 pretty += '\n'
             # Next element on the same level as previous closed brace
             pretty += '\n' + ' ' * (level * spaces)
-            brace = False 
+            brace = False
 
         # Add space after the last parenthesis
         if c == ')':
