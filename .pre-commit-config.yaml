@@ -19,11 +19,10 @@ repos:
         args: [--pragma, '# coding: utf-8']
 -   repo: local
     hooks:
-        -   id: flake8
-            name: flake8
-            entry: flake8 src/
+        -   id: lint
+            name: lint
+            entry: runme lint
             language: system
-            types: [python]
 
 default_language_version:
     python: python3

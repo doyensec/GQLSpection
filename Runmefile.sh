@@ -132,7 +132,7 @@ lint() {
   flake8 src/
 
   log "Running bandit"
-  bandit -r src/
+  bandit --ini setup.cfg -r src/
 }
 
 # @cmd Cleanup bytecode and cache files
