@@ -95,7 +95,9 @@ class GQLSchema(object):
                 k, v = ensure_text(k), ensure_text(v)
                 headers[k] = v
 
-        result = requests.post(url, json={'query': get_introspection_query(minimize=minimize)}, headers=headers).json()
+        result = requests.post(url, json={'query': get_introspection_query(minimize=minimize)},
+                               timeout=10,
+                               headers=headers).json()
         if 'errors' in result:
             raise Exception([error['message'] for error in result['errors']])
 
