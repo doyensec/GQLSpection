@@ -26,7 +26,9 @@ class GQLEnum(object):
         )
 
     def __repr__(self):
-        return '{name} ({description})'.format(
-            name = self.name,
-            description = self.description
-        )
+        if self.description:
+            return '{name} ({description})'.format(
+                name = self.name,
+                description = self.description
+            )
+        return self.name

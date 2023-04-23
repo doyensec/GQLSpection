@@ -1,6 +1,6 @@
 query {
     user {
         name
-        role # User role.
+        role # User role. [ADMIN, USER]
     }
 }

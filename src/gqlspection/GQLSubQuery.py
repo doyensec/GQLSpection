@@ -66,17 +66,25 @@ class GQLSubQuery(object):
 
         # Handle a simple type like scalar or enum (no curly braces)
         # In these cases return field_name(potential: arguments, if: any)\n
+        # TODO: The comments below could be aligned for better readability, but it's not trivial to do as lines
+        # are parsed one by one and comments are added as they are encountered
+        if self.field.kind.kind == 'ENUM':
+            # Description format for enums: "# Field-level-description [ENUM1 (description1), ENUM2 (description2), ENUM3]"
+            description = ''.join([
+                self.description + ' [' if self.description else '[',
+                ', '.join([text_type(x) for x in self.field.type.enums]),
+                ']'
+            ])
+            return self.name + self._render_arguments(SPACE) + ' ' + format_comment(description) + NEWLINE
         if self.field.type.kind.is_builtin_scalar:
-            # TODO: The comments below could be aligned for better readability, but it's not trivial to do as lines
-            # are parsed one by one and comments are added as they are encountered
-            #
             # Builtin scalars like INT, STRING, etc. always have description at type level, but it's boring, so only
-            # comment if there's an explicit field description
+            # add comment if there's an explicit field description
             if self.field_description:
                 return self.name + self._render_arguments(SPACE) + ' ' + format_comment(self.field_description) + NEWLINE
             return self.name + self._render_arguments(SPACE) + NEWLINE
         elif self.field.type.kind.is_leaf:
-            # Leaf types like ENUM, CUSTOM_SCALAR might have description at field or type level
+            # Other leaf types (I think only custom scalars are left?) - field
+            # level description takes precedence over type level
             if self.description:
                 return self.name + self._render_arguments(SPACE) + ' ' + format_comment(self.description) + NEWLINE
             return self.name + self._render_arguments(SPACE) + NEWLINE
