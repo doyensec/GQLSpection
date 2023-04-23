@@ -19,10 +19,10 @@ class GQLSubQuery(object):
         self.depth        = depth - 1
 
     def __repr__(self):
-        self.to_string()
+        return self.to_string()
 
     def __str__(self):
-        self.to_string()
+        return self.to_string()
 
     @staticmethod
     def _indent(indent):

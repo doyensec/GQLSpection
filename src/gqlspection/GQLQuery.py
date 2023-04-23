@@ -24,10 +24,10 @@ class GQLQuery(object):
         self.depth = depth
 
     def __repr__(self):
-        self.to_string()
+        return self.to_string()
 
     def __str__(self):
-        self.to_string()
+        return self.to_string()
 
     @staticmethod
     def _indent(indent):
