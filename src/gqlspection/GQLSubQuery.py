@@ -65,10 +65,20 @@ class GQLSubQuery(object):
         SPACE, NEWLINE, PADDING = self._indent(pad)
 
         # Handle a simple type like scalar or enum (no curly braces)
-        if self.field.type.kind.is_final:
-            # Return field_name(potential: arguments, if: any)\n
+        # In these cases return field_name(potential: arguments, if: any)\n
+        if self.field.type.kind.is_builtin_scalar:
+            # TODO: The comments below could be aligned for better readability, but it's not trivial to do as lines
+            # are parsed one by one and comments are added as they are encountered
+            #
+            # Builtin scalars like INT, STRING, etc. always have description at type level, but it's boring, so only
+            # comment if there's an explicit field description
             if self.field_description:
-                return format_comment(self.field.description) + NEWLINE + self.name + self._render_arguments(SPACE) + NEWLINE
+                return self.name + self._render_arguments(SPACE) + ' ' + format_comment(self.field_description) + NEWLINE
+            return self.name + self._render_arguments(SPACE) + NEWLINE
+        elif self.field.type.kind.is_leaf:
+            # Leaf types like ENUM, CUSTOM_SCALAR might have description at field or type level
+            if self.description:
+                return self.name + self._render_arguments(SPACE) + ' ' + format_comment(self.description) + NEWLINE
             return self.name + self._render_arguments(SPACE) + NEWLINE
         # Handle a complicated field type involving curly braces
 
