@@ -9,7 +9,6 @@ from gqlspection.utils import pad_string
 class GQLSubQuery(object):
     field       = None
     name        = ''
-    description = ''
     depth       = 4
 
     def __init__(self, field, depth=4):
@@ -44,7 +43,7 @@ class GQLSubQuery(object):
         return "({args})".format(args=args) if args else ""
 
     def _render_description(self):
-        return gqlspection.utils.format_comment(self.description)
+        return gqlspection.utils.format_comment(self.field.type.description)
 
     # FIXME: pad parameter in this function isn't used as described in comments, figure out if it's even necessary
     def to_string(self, pad=4):
@@ -105,6 +104,6 @@ class GQLSubQuery(object):
 
         last_line = '}' + NEWLINE
 
-        if pad and self.description:
+        if pad and self.field.type.description:
             return self._render_description() + NEWLINE + first_line + middle_lines + last_line
         return first_line + middle_lines + last_line

@@ -1,0 +1,60 @@
+{
+    "__schema": {
+        "queryType": {
+            "name": "Query"
+        },
+        "types": [
+            {
+                "name": "User",
+                "kind": "OBJECT",
+                "description": "A user of the system.",
+                "fields": [
+                    {
+                        "name": "name",
+                        "args": [],
+                        "type": {
+                            "name": "UserName",
+                            "kind": "OBJECT"
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "UserName",
+                "kind": "OBJECT",
+                "description": "A user's name.",
+                "fields": [
+                    {
+                        "name": "first",
+                        "args": [],
+                        "type": {
+                            "name": "String",
+                            "kind": "SCALAR"
+                        }
+                    },
+                    {
+                        "name": "last",
+                        "args": [],
+                        "type": {
+                            "name": "String",
+                            "kind": "SCALAR"
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "Query",
+                "kind": "OBJECT",
+                "fields": [
+                    {
+                        "name": "user",
+                        "type": {
+                            "name": "User",
+                            "kind": "OBJECT"
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}

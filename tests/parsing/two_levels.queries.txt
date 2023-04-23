@@ -1,0 +1,8 @@
+query {
+    user {
+        name {
+            first
+            last
+        }
+    }
+}

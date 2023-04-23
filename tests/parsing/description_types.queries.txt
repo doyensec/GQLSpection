@@ -1,0 +1,10 @@
+query {
+    # A user of the system.
+    user {
+        # A user's name.
+        name {
+            first
+            last
+        }
+    }
+}

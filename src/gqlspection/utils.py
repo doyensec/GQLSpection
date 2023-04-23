@@ -202,6 +202,8 @@ def pretty_print_graphql(minimized, spaces=2):
 
 
 def format_comment(string, max_length=60):
+    """Format a comment to be no longer than max_length characters per line."""
+
     # Split the string into lines
     lines = string.split('\n')
 
