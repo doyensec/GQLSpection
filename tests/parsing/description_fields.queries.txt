@@ -1,0 +1,10 @@
+query {
+    user {
+        name {
+            # The first name of the user.
+            first
+            # The last name of the user.
+            last
+        }
+    }
+}

@@ -1,8 +1,7 @@
 # coding: utf-8
 from __future__ import unicode_literals
-import gqlspection
 from gqlspection.six import python_2_unicode_compatible, text_type
-from gqlspection.utils import pad_string
+from gqlspection.utils import pad_string, format_comment
 
 
 @python_2_unicode_compatible
@@ -42,8 +41,17 @@ class GQLSubQuery(object):
         args = (',' + SPACE).join([text_type(x) for x in self.field.args])
         return "({args})".format(args=args) if args else ""
 
-    def _render_description(self):
-        return gqlspection.utils.format_comment(self.field.type.description)
+    @property
+    def field_description(self):
+        return self.field.description
+
+    @property
+    def type_description(self):
+        return self.field.type.description
+
+    @property
+    def description(self):
+        return self.field_description or self.type_description
 
     # FIXME: pad parameter in this function isn't used as described in comments, figure out if it's even necessary
     def to_string(self, pad=4):
@@ -59,6 +67,8 @@ class GQLSubQuery(object):
         # Handle a simple type like scalar or enum (no curly braces)
         if self.field.type.kind.is_final:
             # Return field_name(potential: arguments, if: any)\n
+            if self.field_description:
+                return format_comment(self.field.description) + NEWLINE + self.name + self._render_arguments(SPACE) + NEWLINE
             return self.name + self._render_arguments(SPACE) + NEWLINE
         # Handle a complicated field type involving curly braces
 
@@ -104,6 +114,7 @@ class GQLSubQuery(object):
 
         last_line = '}' + NEWLINE
 
-        if pad and self.field.type.description:
-            return self._render_description() + NEWLINE + first_line + middle_lines + last_line
+        if pad:
+            if self.description:
+                return format_comment(self.description) + NEWLINE + first_line + middle_lines + last_line
         return first_line + middle_lines + last_line
