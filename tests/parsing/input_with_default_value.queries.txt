@@ -1,0 +1,5 @@
+query {
+    user(id: ID = 0) {
+        name(abbreviated: Boolean = false)
+    }
+}

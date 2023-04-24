@@ -1,0 +1,67 @@
+{
+    "__schema": {
+        "queryType": {
+            "name": "Query"
+        },
+        "types": [
+            {
+                "name": "User",
+                "description": "A user",
+                "kind": "OBJECT",
+                "fields": [
+                    {
+                        "name": "name",
+                        "description":"Name of the user",
+                        "args": [
+                            {
+                                "name": "abbreviated",
+                                "description": "Abbreviated or full name",
+                                "type": {
+                                    "name": "Boolean",
+                                    "kind": "SCALAR"
+                                },
+                                "defaultValue": false
+                            }
+                        ],
+                        "type": {
+                            "name": "String",
+                            "kind": "SCALAR"
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "Query",
+                "kind": "OBJECT",
+                "fields": [
+                    {
+                        "name": "user",
+                        "type": {
+                            "name": "User",
+                            "kind": "OBJECT"
+                        },
+                        "args": [
+                            {
+                                "name": "id",
+                                "description": "ID of the user",
+                                "type": {
+                                    "name": "ID",
+                                    "kind": "SCALAR"
+                                },
+                                "defaultValue": 0
+                            },
+                            {
+                                "name": "key",
+                                "description": "Key of the user",
+                                "type": {
+                                    "name": "String",
+                                    "kind": "SCALAR"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

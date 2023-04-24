@@ -41,17 +41,47 @@ class GQLSubQuery(object):
         args = (',' + SPACE).join([text_type(x) for x in self.field.args])
         return "({args})".format(args=args) if args else ""
 
+    def _describe_arguments(self):
+        # Not using ';' as descriptions could end with a dot which would look ugly.
+        description = ' | '.join([
+            '{name} - {description}'.format(name=arg.name, description=arg.description)
+            for arg in self.field.args if arg.description
+        ])
+        if description:
+            return '[{description}]'.format(description=description)
+        return ''
+
+    def _format_comment(self, text):
+        """Concatenate text with arguments if they exist and format it as a comment."""
+        args = self._describe_arguments()
+        if args:
+            combined = text + ' ' + args
+            return format_comment(combined) if combined else ''
+        return format_comment(text) if text else ''
+
     @property
-    def field_description(self):
+    def _field_description(self):
         return self.field.description
 
     @property
-    def type_description(self):
+    def _type_description(self):
         return self.field.type.description
 
     @property
+    def field_description(self):
+        return self._format_comment(self._field_description)
+
+    @property
+    def type_description(self):
+        return self._format_comment(self._type_description)
+
+    @property
+    def _description(self):
+        return self._field_description or self._type_description
+
+    @property
     def description(self):
-        return self.field_description or self.type_description
+        return self._format_comment(self._description)
 
     # FIXME: pad parameter in this function isn't used as described in comments, figure out if it's even necessary
     def to_string(self, pad=4):
@@ -71,7 +101,7 @@ class GQLSubQuery(object):
         if self.field.kind.kind == 'ENUM':
             # Description format for enums: "# Field-level-description [ENUM1 (description1), ENUM2 (description2), ENUM3]"
             description = ''.join([
-                self.description + ' [' if self.description else '[',
+                self._description + ' [' if self._description else '[',
                 ', '.join([text_type(x) for x in self.field.type.enums]),
                 ']'
             ])
@@ -80,13 +110,13 @@ class GQLSubQuery(object):
             # Builtin scalars like INT, STRING, etc. always have description at type level, but it's boring, so only
             # add comment if there's an explicit field description
             if self.field_description:
-                return self.name + self._render_arguments(SPACE) + ' ' + format_comment(self.field_description) + NEWLINE
+                return self.name + self._render_arguments(SPACE) + ' ' + self.field_description + NEWLINE
             return self.name + self._render_arguments(SPACE) + NEWLINE
         elif self.field.type.kind.is_leaf:
             # Other leaf types (I think only custom scalars are left?) - field
             # level description takes precedence over type level
             if self.description:
-                return self.name + self._render_arguments(SPACE) + ' ' + format_comment(self.description) + NEWLINE
+                return self.name + self._render_arguments(SPACE) + ' ' + self.description + NEWLINE
             return self.name + self._render_arguments(SPACE) + NEWLINE
         # Handle a complicated field type involving curly braces
 
@@ -134,5 +164,5 @@ class GQLSubQuery(object):
 
         if pad:
             if self.description:
-                return format_comment(self.description) + NEWLINE + first_line + middle_lines + last_line
+                return self.description + NEWLINE + first_line + middle_lines + last_line
         return first_line + middle_lines + last_line
