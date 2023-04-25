@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 from gqlspection import log
 from gqlspection.six import text_type
+from gqlspection.introspection_query import get_introspection_query
 
 
 def minimize_query(query):
@@ -263,3 +264,74 @@ def pad_string(string, n=4):
     else:
         log.debug("Asked to pad the following non-string with %s spaces: %s", n, string)
         raise Exception("Expected a string to pad, received %s", type(string))
+
+
+def query_introspection_version(url, headers=None, version='draft', include_metadata=False, request_fn=None):
+    """
+    Send introspection query with the specified version and get the GraphQL schema.
+    """
+    log.debug("Introspection query about to be sent with version '%s' to '%s'.", version, url)
+    log.error("Here are the headers: %s", headers)
+
+    # Get the introspection query
+    body = '{{"query":"{}"}}'.format(get_introspection_query(version=version))
+    log.debug("Acquired introspection query body")
+
+    # Use requests library by default, but allow overriding
+    if not request_fn:
+        from requests import request as request_fn
+
+    # Use application/json by default, but allow overriding
+    if not headers:
+        headers = {'Content-Type': 'application/json'}
+
+    # Send HTTP request
+    response = request_fn('POST', url, headers=headers, data=body)
+    log.debug("Sent the request and got the response")
+
+    try:
+        schema = response.json()
+        log.debug("successfully parsed JSON")
+    except Exception:
+        # TODO: Doesn't this mean it's not a GraphQL endpoint? Maybe early return?
+        log.info("Could not parse introspection query for the url '%s' (version: %s).", url, version)
+        raise Exception("Could not parse introspection query for the url '%s' (version: %s)." % (url, version))
+
+    if 'errors' in schema:
+        for msg in schema['errors']:
+            log.info("Received an error from %s (version: %s): %s", url, version, msg)
+        return None
+
+    # Catch 4** and 5** errors
+    if response.status_code >= 400:
+        log.info("Could not query schema from %s (version: %s).", url, version)
+        return None
+
+    # Got successful introspection response!
+    log.info("Found the introspection response with '%s' version schema.", version)
+    log.debug("The received introspection schema: %s", schema)
+
+    if include_metadata:
+        schema['__metadata__'] = {'spec_level': version}
+        log.debug("Added metadata to introspection schema: %s", schema['__metadata__'])
+
+    return schema
+
+
+def query_introspection(url, headers=None, include_metadata=False, request_fn=None):
+    """
+    Send introspection query and get the GraphQL schema with the highest supported spec level.
+    """
+    log.debug("Introspection query about to be sent to '%s'.", url)
+
+    for version in ('draft', 'oct2021', 'jun2018'):
+        schema = query_introspection_version(url, headers=headers, version=version, include_metadata=include_metadata,
+                                             request_fn=request_fn)
+        if schema:
+            return schema
+        else:
+            log.debug("Introspection query with '%s' version failed: %s", version)
+
+    # None of the introspection queries were successful
+    log.warning("Introspection seems disabled for this endpoint: '%s'.", url)
+    raise Exception("Introspection seems disabled for this endpoint: '%s'." % url)

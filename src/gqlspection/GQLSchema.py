@@ -4,6 +4,7 @@ import json as j
 from gqlspection.six import text_type, ensure_text
 from gqlspection import log
 import gqlspection
+from gqlspection.utils import query_introspection
 
 
 class GQLSchema(object):
@@ -30,7 +31,7 @@ class GQLSchema(object):
                 raise Exception("GQLSchema: Couldn't parse JSON schema.")
         elif url:
             url = ensure_text(url)
-            introspection_result = self.send_request(url, extra_headers)
+            introspection_result = query_introspection(url, headers=extra_headers)
             original_schema = introspection_result['data']['__schema']
         else:
             raise Exception("GQLSchema: Provide either JSON or URL.")
@@ -83,25 +84,6 @@ class GQLSchema(object):
                 return None
         else:
             return None
-
-    @staticmethod
-    def send_request(url, extra_headers=None, minimize=True):
-        import requests
-        from gqlspection.introspection_query import get_introspection_query
-
-        headers = {'Content-Type': 'application/json'}
-        if extra_headers:
-            for k, v in extra_headers:
-                k, v = ensure_text(k), ensure_text(v)
-                headers[k] = v
-
-        result = requests.post(url, json={'query': get_introspection_query(minimize=minimize)},
-                               timeout=10,
-                               headers=headers).json()
-        if 'errors' in result:
-            raise Exception([error['message'] for error in result['errors']])
-
-        return result
 
     def generate_query(self, name, depth=4):
         if type(name) == text_type:
