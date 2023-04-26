@@ -5,6 +5,7 @@ from gqlspection.six import text_type, ensure_text
 from gqlspection import log
 import gqlspection
 from gqlspection.utils import query_introspection
+from gqlspection.points_of_interest.POIScanner import POIScanner
 
 
 class GQLSchema(object):
@@ -13,7 +14,6 @@ class GQLSchema(object):
     mutation       = None
 
     def __init__(self, url=None, extra_headers=None, json=None):
-        # type: (Optional[str], Optional[dict], Optional[str | dict]) -> None
         log.debug("GQLSchema initialized.")
         if json:
             if type(json) == text_type:
@@ -114,3 +114,27 @@ class GQLSchema(object):
             gqlspection.GQLQuery(self.mutation, 'mutation', name=field.name, fields=[field])
             for field in self.mutation.fields if field.name
         )
+
+    def points_of_interest(self, keywords=None):
+        return POIScanner(self, keywords=keywords).scan()
+
+    def _print_points_of_interest(self, keywords=None):
+        result = []
+
+        for category, finding in self.points_of_interest(keywords=keywords).items():
+            result += ["Category: {}".format(category)]
+            result += [""]
+            for poi in finding:
+                # result.path indicates location of the POI, result.description is a description of the POI (if present)
+                result += ["  - {}".format(poi["path"])]
+                if poi["description"]:
+                    result += [""]
+                    result += ["    Description: " + "\n    ".join(poi["description"].split("\n"))]
+                    result += [""]
+                result += [""]
+            result += [""]
+
+        return "\n".join(result)
+
+    def print_points_of_interest(self, keywords=None):
+        print(self._print_points_of_interest(keywords=keywords))

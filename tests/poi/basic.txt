@@ -1,0 +1,7 @@
+Category: Auth
+
+  - Query.user.credentials
+
+  - Query.user.credentials.password
+
+    Description: Yeah, really.

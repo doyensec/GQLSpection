@@ -43,13 +43,24 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
     '-d', '--depth', default=4, help="Query depth, limits recursion (default: 4)."
 )
 @click.option(
+    '-p', '--points-of-interest', is_flag=True, help="Enable 'Points of Interest' reporting."
+)
+@click.option(
+    '-k', '--keywords', help="Custom keywords for 'Points of Interest' reporting (comma-separated list)."
+)
+@click.option(
+    '-K', '--keywords-file', help="Custom keywords for 'Points of Interest' reporting (read from a file)."
+)
+@click.option(
     '-v', '--verbose', is_flag=True, help="Enable verbose logging."
 )
 @click.option(
     '-g', '--debug', is_flag=True, help="Enable debug logging."
 )
 def cli(file_=None, url=None, all_queries=False, all_mutations=False, query=None, mutation=None, list_available=None,
-        depth=4, verbose=False, debug=False):
+        depth=4, points_of_interest=False, keywords=None, keywords_file=None, verbose=False, debug=False):
+    """CLI interface for GraphQL schema introspection tool."""
+
     if verbose:
         set_log_level(log, 'INFO')
     if debug:
@@ -59,7 +70,8 @@ def cli(file_=None, url=None, all_queries=False, all_mutations=False, query=None
         mutation = ensure_text(mutation) if mutation is not None else None
         list_available = ensure_text(list_available) if list_available is not None else None
 
-        run(file_, url, all_queries, all_mutations, query, mutation, list_available, depth)
+        run(file_, url, all_queries, all_mutations, query, mutation, list_available, depth,
+            points_of_interest, keywords, keywords_file)
     except Exception:
         import traceback
         traceback.print_exc()
@@ -68,8 +80,17 @@ def cli(file_=None, url=None, all_queries=False, all_mutations=False, query=None
     sys.exit(0)
 
 
-def run(file_, url, all_queries, all_mutations, query, mutation, list_available, depth):
+def run(file_, url, all_queries, all_mutations, query, mutation, list_available, depth,
+        points_of_interest, keywords, keywords_file):
+    if keywords_file:
+        with open(keywords_file) as f:
+            keywords = [line.strip() for line in f.readlines()]
+
     schema = parse_schema(file_, url)
+
+    if points_of_interest:
+        schema.print_points_of_interest(keywords)
+        return
 
     if list_available:
         print_available_stuff(schema, list_available)
