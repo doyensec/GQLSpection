@@ -115,13 +115,15 @@ class GQLSchema(object):
             for field in self.mutation.fields if field.name
         )
 
-    def points_of_interest(self, keywords=None):
-        return POIScanner(self, keywords=keywords).scan()
+    def points_of_interest(self, depth=3, categories=None, keywords=None):
+        scanner = POIScanner(self,
+                             categories=categories,
+                             keywords=keywords)
+        return scanner.scan(depth=depth)
 
-    def _print_points_of_interest(self, keywords=None):
+    def _parse_points_of_interest(self, poi_json):
         result = []
-
-        for category, finding in self.points_of_interest(keywords=keywords).items():
+        for category, finding in poi_json.items():
             result += ["Category: {}".format(category)]
             result += [""]
             for poi in finding:
@@ -136,5 +138,6 @@ class GQLSchema(object):
 
         return "\n".join(result)
 
-    def print_points_of_interest(self, keywords=None):
-        print(self._print_points_of_interest(keywords=keywords))
+    def print_points_of_interest(self, depth=3, categories=None, keywords=None):
+        poi = self.points_of_interest(depth=depth, categories=categories, keywords=keywords)
+        print(self._parse_points_of_interest(poi))

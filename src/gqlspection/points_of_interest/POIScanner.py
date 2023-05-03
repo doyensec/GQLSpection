@@ -1,6 +1,6 @@
 # coding: utf-8
 import re
-from .keywords import DEFAULT_KEYWORDS
+from .keywords import DEFAULT_KEYWORDS, DEFAULT_CATEGORIES
 
 # NOTE: This is a work in progress. Wishlist:
 #
@@ -28,25 +28,34 @@ class POIScanner(object):
         * Debug endpoints
         * Deprecated fields
     """
-    def __init__(self, schema, keywords=None):
+    def __init__(self, schema, categories=None, keywords=None):
         self.schema = schema
         self.examined_types = set()
+        self.categories = categories or DEFAULT_CATEGORIES
 
         # Pre-compile regexes
-        self.compiled_keywords = []
+        self.compiled_keywords = {}
         for keyword in DEFAULT_KEYWORDS:
-            self.compiled_keywords.append({
+            cat = keyword["id"]
+
+            if cat not in self.categories:
+                continue
+
+            self.compiled_keywords[cat] = {
                 "name": keyword["name"],
                 # combine keywords into a single regex
                 "regex": re.compile("|".join(keyword["keywords"]), re.IGNORECASE),
-            })
+            }
 
         # Add custom keywords
-        if keywords:
-            self.compiled_keywords.append({
-                "name": "Custom",
-                "regex": re.compile("|".join(keywords), re.IGNORECASE),
-            })
+        # ignore keywords if not list or ()
+        if keywords and isinstance(keywords, (list, tuple)):
+            keywords = [k for k in keywords if k]
+            if keywords:
+                self.compiled_keywords["custom"] = {
+                    "name": "Custom",
+                    "regex": re.compile("|".join(keywords), re.IGNORECASE),
+                }
 
     def scan(self, depth=4):
         """Scan the schema for points of interest."""
@@ -57,6 +66,7 @@ class POIScanner(object):
         if self.schema.mutation:
             initial_types.append(self.schema.mutation)
 
+        # Scan each field in each type
         for gql_type in initial_types:
             for field in gql_type.fields:
                 if field.name == "__typename":
@@ -64,6 +74,7 @@ class POIScanner(object):
 
                 results.extend(self._scan_field(field, depth, path=gql_type.name))
 
+        # Categorize results
         categorized = {}
         for result in results:
             category = result["type"]
@@ -85,7 +96,7 @@ class POIScanner(object):
         # 1. Process current field
 
         # Check deprecated status
-        if field.is_deprecated:
+        if "deprecated" in self.categories and field.is_deprecated:
             results.append({
                 "type": "Deprecated",
                 "path": path,
@@ -93,15 +104,18 @@ class POIScanner(object):
             })
 
         # Check if the field is custom scalar type
-        if field.type.kind.kind == "SCALAR" and not field.type.kind.is_builtin_scalar:
-            results.append({
-                "type": "Custom Scalar",
-                "path": path,
-                "description": field.description or field.type.description
-            })
+        if "custom_scalars" in self.categories:
+            if field.type.kind.kind == "SCALAR" and not field.type.kind.is_builtin_scalar:
+                results.append({
+                    "type": "Custom Scalar",
+                    "path": path,
+                    "description": field.description or field.type.description
+                })
 
-        # Check for keywords
-        for keyword in self.compiled_keywords:
+        # Check for default keywords
+        for cat in self.compiled_keywords:
+            keyword = self.compiled_keywords[cat]
+
             if keyword["regex"].search(field.name):
                 results.append({
                     "type": keyword["name"],

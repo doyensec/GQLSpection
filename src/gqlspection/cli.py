@@ -8,6 +8,7 @@ try:
 except ImportError:
     from pathlib2 import Path
 from gqlspection import log, set_log_level, GQLSchema
+from gqlspection.points_of_interest.keywords import DEFAULT_CATEGORIES
 from gqlspection.six import ensure_text
 
 click.disable_unicode_literals_warning = True
@@ -43,7 +44,14 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
     '-d', '--depth', default=4, help="Query depth, limits recursion (default: 4)."
 )
 @click.option(
-    '-p', '--points-of-interest', is_flag=True, help="Enable 'Points of Interest' reporting."
+    '-p', '--poi', is_flag=True, help="Enable 'Points of Interest' reporting."
+)
+@click.option(
+    '-P', '--poi-categories',
+    help="A list of enabled PoI categories: " + ','.join(DEFAULT_CATEGORIES)
+)
+@click.option(
+    '--poi-depth', default=2, help="How deep in the schema to look for PoI (default: 2)."
 )
 @click.option(
     '-k', '--keywords', help="Custom keywords for 'Points of Interest' reporting (comma-separated list)."
@@ -58,7 +66,7 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
     '-g', '--debug', is_flag=True, help="Enable debug logging."
 )
 def cli(file_=None, url=None, all_queries=False, all_mutations=False, query=None, mutation=None, list_available=None,
-        depth=4, points_of_interest=False, keywords=None, keywords_file=None, verbose=False, debug=False):
+        depth=4, poi=False, poi_categories=None, poi_depth=2, keywords=None, keywords_file=None, verbose=False, debug=False):
     """CLI interface for GraphQL schema introspection tool."""
 
     if verbose:
@@ -70,8 +78,14 @@ def cli(file_=None, url=None, all_queries=False, all_mutations=False, query=None
         mutation = ensure_text(mutation) if mutation is not None else None
         list_available = ensure_text(list_available) if list_available is not None else None
 
+        if keywords:
+            keywords = keywords.split(',')
+
+        if poi_categories:
+            poi_categories = poi_categories.split(',')
+
         run(file_, url, all_queries, all_mutations, query, mutation, list_available, depth,
-            points_of_interest, keywords, keywords_file)
+            poi, poi_categories, poi_depth, keywords, keywords_file)
     except Exception:
         import traceback
         traceback.print_exc()
@@ -81,7 +95,7 @@ def cli(file_=None, url=None, all_queries=False, all_mutations=False, query=None
 
 
 def run(file_, url, all_queries, all_mutations, query, mutation, list_available, depth,
-        points_of_interest, keywords, keywords_file):
+        points_of_interest, points_of_interest_categories, poi_depth, keywords, keywords_file):
     if keywords_file:
         with open(keywords_file) as f:
             keywords = [line.strip() for line in f.readlines()]
@@ -89,7 +103,10 @@ def run(file_, url, all_queries, all_mutations, query, mutation, list_available,
     schema = parse_schema(file_, url)
 
     if points_of_interest:
-        schema.print_points_of_interest(keywords)
+        schema.print_points_of_interest(
+            depth=poi_depth,
+            categories=points_of_interest_categories,
+            keywords=keywords)
         return
 
     if list_available:

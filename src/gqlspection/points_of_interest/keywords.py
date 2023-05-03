@@ -1,7 +1,21 @@
 # coding: utf-8
+
+DEFAULT_CATEGORIES = [
+    "auth",
+    "custom_scalars"
+    "database",
+    "debugging",
+    "deprecated",
+    "files",
+    "payment",
+    "pii",
+    "privileged",
+]
+
 DEFAULT_KEYWORDS = [
     {
         "name": "Auth",
+        "id": "auth",
         "keywords": [
             "2fa",
             "access.?key",
@@ -38,6 +52,7 @@ DEFAULT_KEYWORDS = [
     },
     {
         "name": "Priviliged",
+        "id": "priviliged",
         "keywords": [
             "access.?control",
             "access.?level",
@@ -49,6 +64,7 @@ DEFAULT_KEYWORDS = [
     },
     {
         "name": "PII",
+        "id": "pii",
         "keywords": [
             "address",
             "birth.?date",
@@ -81,6 +97,7 @@ DEFAULT_KEYWORDS = [
     },
     {
         "name": "Payment",
+        "id": "payment",
         "keywords": [
             "billing",
             "card.?code",
@@ -103,6 +120,7 @@ DEFAULT_KEYWORDS = [
     },
     {
         "name": "Database",
+        "id": "database",
         "keywords": [
             "cassandra",
             "column",
@@ -135,6 +153,7 @@ DEFAULT_KEYWORDS = [
     },
     {
         "name": "Debugging",
+        "id": "debugging",
         "keywords": [
             "audit.?action",
             "audit.?log"
@@ -145,6 +164,7 @@ DEFAULT_KEYWORDS = [
     },
     {
         "name": "Files",
+        "id": "files",
         "keywords": [
             "audio",
             "base.?64",
@@ -159,6 +179,7 @@ DEFAULT_KEYWORDS = [
     },
     {
         "name": "Deprecated",
+        "id": "deprecated",
         "keywords": [
             "deprecat",
             "legacy",
