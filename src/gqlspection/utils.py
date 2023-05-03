@@ -271,7 +271,6 @@ def query_introspection_version(url, headers=None, version='draft', include_meta
     Send introspection query with the specified version and get the GraphQL schema.
     """
     log.debug("Introspection query about to be sent with version '%s' to '%s'.", version, url)
-    log.error("Here are the headers: %s", headers)
 
     # Get the introspection query
     body = '{{"query":"{}"}}'.format(get_introspection_query(version=version))
