@@ -329,7 +329,7 @@ def query_introspection(url, headers=None, include_metadata=False, request_fn=No
         if schema:
             return schema
         else:
-            log.debug("Introspection query with '%s' version failed: %s", version)
+            log.debug("Introspection query with '%s' version failed: %s", version, schema)
 
     # None of the introspection queries were successful
     log.warning("Introspection seems disabled for this endpoint: '%s'.", url)
