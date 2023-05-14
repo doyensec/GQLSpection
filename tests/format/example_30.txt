@@ -1,0 +1,3 @@
+{
+  nearestThing(location: { lon: 12.43, lat: -53.211 })
+}

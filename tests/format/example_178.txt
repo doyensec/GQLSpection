@@ -1,0 +1,9 @@
+query variableUsedInFragment($atOtherHomes: Boolean) {
+  dog {
+    ...isHouseTrainedFragment
+  }
+}
+
+fragment isHouseTrainedFragment on Dog {
+  isHouseTrained(atOtherHomes: $atOtherHomes)
+}

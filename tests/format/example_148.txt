@@ -1,0 +1,5 @@
+fragment dogFragment on Dog {
+  ... on Dog {
+    barkVolume
+  }
+}

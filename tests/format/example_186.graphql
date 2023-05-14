@@ -1,0 +1,5 @@
+query booleanArgQueryWithDefault($booleanArg: Boolean) {
+  arguments {
+    optionalNonNullBooleanArgField(optionalBooleanArg: $booleanArg)
+  }
+}

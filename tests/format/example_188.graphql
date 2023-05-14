@@ -1,0 +1,6 @@
+subscription NewMessages {
+  newMessage(roomId: 123) {
+    sender
+    text
+  }
+}

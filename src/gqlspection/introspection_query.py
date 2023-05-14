@@ -136,13 +136,4 @@ def get_introspection_query(version='draft', depth=4, minimize=True):
     else:
         raise Exception("Version '%s' is invalid." % version)
 
-    return _get_introspection_query(query, depth, minimize)
-
-
-def _get_introspection_query(query, depth=4, minimize=True):
-    from gqlspection.utils import minimize_query
-
-    if minimize:
-        return minimize_query(query)
-    else:
-        return query
+    return query

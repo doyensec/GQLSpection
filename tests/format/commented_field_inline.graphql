@@ -1,0 +1,6 @@
+{
+  abcdef # A comment in the beginning
+  ghijkl
+  mnopqr # A comment in the middle
+  stuvwx # A comment in the end
+}

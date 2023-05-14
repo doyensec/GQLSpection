@@ -1,0 +1,11 @@
+query GetSearchResults {
+  search(contains: "Shakespeare") {
+    __typename
+    ... on Book {
+      title
+    }
+    ... on Author {
+      name
+    }
+  }
+}

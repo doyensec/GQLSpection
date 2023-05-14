@@ -1,0 +1,9 @@
+{
+  hero(episode: $episode) {
+    name
+    heroFriends: friends {
+      id
+      name
+    }
+  }
+}

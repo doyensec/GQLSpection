@@ -1,0 +1,18 @@
+# An example query to get you started:
+#
+# {
+#   allFilms {
+#     films {
+#       title
+#       episodeID
+#       characterConnection {
+#         characters {
+#           name
+#         }
+#       }
+#     }
+#   }
+# }
+#
+# That query will return all the films in the database, along with their
+# episode number and a list of characters associated with each film.

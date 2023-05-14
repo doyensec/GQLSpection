@@ -1,0 +1,13 @@
+fragment fragOnObject on Dog {
+  name
+}
+
+fragment fragOnInterface on Pet {
+  name
+}
+
+fragment fragOnUnion on CatOrDog {
+  ... on Dog {
+    name
+  }
+}

@@ -1,0 +1,13 @@
+{
+  a {
+    subfield1
+  }
+  ...ExampleFragment
+}
+
+fragment ExampleFragment on Query {
+  a {
+    subfield2
+  }
+  b
+}

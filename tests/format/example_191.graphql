@@ -1,0 +1,8 @@
+{
+  changeBirthday(birthday: $newBirthday) {
+    month
+  }
+  changeAddress(address: $newAddress) {
+    street
+  }
+}

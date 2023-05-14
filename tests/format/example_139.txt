@@ -1,0 +1,15 @@
+fragment correctType on Dog {
+  name
+}
+
+fragment inlineFragment on Dog {
+  ... on Dog {
+    name
+  }
+}
+
+fragment inlineFragment2 on Dog {
+  ... @include(if: true) {
+    name
+  }
+}

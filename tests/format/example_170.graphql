@@ -1,0 +1,5 @@
+query variableIsDefined($atOtherHomes: Boolean) {
+  dog {
+    isHouseTrained(atOtherHomes: $atOtherHomes)
+  }
+}

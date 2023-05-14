@@ -1,0 +1,6 @@
+query {
+  article(where: { author: { name: { _eq: "Edgar Allan Poe" } } }) {
+    id
+    title
+  }
+}
