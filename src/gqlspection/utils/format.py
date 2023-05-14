@@ -55,7 +55,7 @@ class PrettyPrinter(object):
             elif char.isalpha() or char == '_':
                 token = self._read_name()
             else:
-                raise ValueError(f"Unexpected character '{char}' at position {self._index}")
+                raise ValueError("Unexpected character '{char}' at position {self._index}".format(char=char, self=self))
 
             tokens.append(token)
 
@@ -116,7 +116,7 @@ class PrettyPrinter(object):
             index += 1
         else:
             # if we get here, we've reached the end of the query without finding the end of the string
-            raise ValueError(f"Unterminated string starting at position {start}")
+            raise ValueError("Unterminated string starting at position {start}".format(start=start))
 
         self._index = index
         return self._request[start:index]
