@@ -9,7 +9,7 @@ from gqlspection.six import text_type
 from gqlspection.introspection_query import get_introspection_query
 
 
-def format_comment(string, max_length=60):
+def format_comment(string, max_length=80):
     """Format a comment to be no longer than max_length characters per line."""
 
     # Split the string into lines

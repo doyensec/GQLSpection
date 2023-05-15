@@ -1,6 +1,9 @@
 query {
     user {
         name
-        role # User role. [ADMIN, USER]
+        # (enum) User role.
+        # - ADMIN
+        # - USER
+        role
     }
 }

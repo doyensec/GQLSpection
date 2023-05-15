@@ -43,20 +43,23 @@ class GQLSubQuery(object):
 
     def _describe_arguments(self):
         # Not using ';' as descriptions could end with a dot which would look ugly.
-        description = ' | '.join([
-            '{name} - {description}'.format(name=arg.name, description=arg.description)
-            for arg in self.field.args if arg.description
-        ])
-        if description:
-            return '[{description}]'.format(description=description)
-        return ''
+        return ['{name}: {description}'.format(name=arg.name, description=arg.description)
+                for arg in self.field.args if arg.description]
 
     def _format_comment(self, text):
         """Concatenate text with arguments if they exist and format it as a comment."""
         args = self._describe_arguments()
-        if args:
-            combined = text + ' ' + args
-            return format_comment(combined) if combined else ''
+        if not args:
+            # If there are no arguments, just return the main description
+            return format_comment(text) if text else ''
+
+        # If there are arguments, add a colon to the main description and list the arguments
+        # as a bulleted list
+        if text and text[-1] not in ('.', '!', '?', ':', ';'):
+            text += ':'
+
+        for arg in args:
+            text += '\n - ' + arg
         return format_comment(text) if text else ''
 
     @property
@@ -99,17 +102,25 @@ class GQLSubQuery(object):
         # TODO: The comments below could be aligned for better readability, but it's not trivial to do as lines
         # are parsed one by one and comments are added as they are encountered
         if self.field.kind.kind == 'ENUM':
-            # Description format for enums: "# Field-level-description [ENUM1 (description1), ENUM2 (description2), ENUM3]"
-            description = ''.join([
-                self._description + ' [' if self._description else '[',
-                ', '.join([text_type(x) for x in self.field.type.enums]),
-                ']'
-            ])
-            return self.name + self._render_arguments(SPACE) + ' ' + format_comment(description) + NEWLINE
+            if self._description:
+                description = '(enum) ' + self._description
+            else:
+                description = 'enum'
+
+            if description and description[-1] not in ('.', '!', '?', ':', ';'):
+                description += ':'
+            for enum in self.field.type.enums:
+                description += '\n - ' + text_type(enum)
+            return format_comment(description) + NEWLINE + self.name + self._render_arguments(SPACE) + NEWLINE
         if self.field.type.kind.is_builtin_scalar:
             # Builtin scalars like INT, STRING, etc. always have description at type level, but it's boring, so only
             # add comment if there's an explicit field description
             if self.field_description:
+                args = self._render_arguments(SPACE)
+                if args:
+                    # If there are arguments, show the description above the field name
+                    return self.field_description + NEWLINE + self.name + self._render_arguments(SPACE) + NEWLINE
+                # Otherwise show the description as an inline comment
                 return self.name + self._render_arguments(SPACE) + ' ' + self.field_description + NEWLINE
             return self.name + self._render_arguments(SPACE) + NEWLINE
         elif self.field.type.kind.is_leaf:

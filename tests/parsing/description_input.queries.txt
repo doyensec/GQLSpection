@@ -1,6 +1,10 @@
 query {
-    # A user [id - ID of the user | key - Key of the user]
+    # A user:
+    # - id: ID of the user
+    # - key: Key of the user
     user(id: ID = 0, key: String) {
-        name(abbreviated: Boolean = false) # Name of the user [abbreviated - Abbreviated or full name]
+        # Name of the user:
+        # - abbreviated: Abbreviated or full name
+        name(abbreviated: Boolean = false)
     }
 }
