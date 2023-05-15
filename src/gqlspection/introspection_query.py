@@ -106,7 +106,7 @@ fragment TypeRef on __Type {
 """
 
 
-# TODO: 'depth' is ignored right now, fix it
+# TODO: 'depth' and 'minimize' are ignored right now, fix it
 def get_introspection_query(version='draft', depth=4, minimize=True):
     """Construct the introspection query and optionally minimize it."""
     if version == 'draft':

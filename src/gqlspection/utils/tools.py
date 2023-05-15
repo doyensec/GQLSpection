@@ -3,6 +3,7 @@
 # According to ChatGPT, the code is licensed under MIT license.
 
 from __future__ import unicode_literals
+import json
 from gqlspection import log
 from gqlspection.six import text_type
 from gqlspection.introspection_query import get_introspection_query
@@ -79,7 +80,7 @@ def query_introspection_version(url, headers=None, version='draft', include_meta
     log.debug("Introspection query about to be sent with version '%s' to '%s'.", version, url)
 
     # Get the introspection query
-    body = '{{"query":"{}"}}'.format(get_introspection_query(version=version))
+    body = json.dumps({'query': get_introspection_query(version=version)})
     log.debug("Acquired introspection query body")
 
     # Use requests library by default, but allow overriding
