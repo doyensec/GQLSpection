@@ -8,7 +8,6 @@ import copy
 
 
 # TODO: Figure out if it's better to split this monstrosity in two classes
-@python_2_unicode_compatible
 class QueryBuilder(object):
     def __init__(self, query, indent=4):
         # Used for building the query string
@@ -57,7 +56,7 @@ class QueryBuilder(object):
     def add_field(self, field, args=None):
         line = field
         if args:
-            line += '(' + ', '.join(f'{k}: {v}' for k, v in args.items()) + ')'
+            line += '(' + ', '.join(['{k}: {v}'.format(k=k, v=v) for k, v in args.items()]) + ')'
         self.add_line(line)
 
     def build(self):
