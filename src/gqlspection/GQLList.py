@@ -30,6 +30,9 @@ class GQLList(Mapping):
             ((i.name, i) for i in sorted_elements)
         )
 
+    def __reversed__(self):
+        return (self._elements[el] for el in reversed(self._elements))
+
     def __getitem__(self, item):
         if type(item) == text_type:
             return self._elements[item]

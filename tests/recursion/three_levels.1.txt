@@ -1,7 +1,7 @@
 query {
     user {
-        # account {}
+        #account {}
         id
-        # name {}
+        #name {}
     }
 }

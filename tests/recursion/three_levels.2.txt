@@ -2,7 +2,7 @@ query {
     user {
         account {
             active
-            # balance {}
+            #balance {}
         }
         id
         name {

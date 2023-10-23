@@ -1,0 +1,71 @@
+{
+    "__schema": {
+        "queryType": {
+            "name": "Query"
+        },
+        "types": [
+            {
+                "name": "Parent",
+                "kind": "OBJECT",
+                "fields": [
+                    {
+                        "name": "id",
+                        "type": {
+                            "kind": "NON_NULL",
+                            "ofType": {
+                                "kind": "SCALAR",
+                                "name": "ID"
+                            }
+                        }
+                    },
+                    {
+                        "name": "children",
+                        "type": {
+                            "kind": "LIST",
+                            "ofType": {
+                                "kind": "OBJECT",
+                                "name": "Child"
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "kind": "OBJECT",
+                "name": "Child",
+                "fields": [
+                    {
+                        "name": "id",
+                        "type": {
+                            "kind": "NON_NULL",
+                            "ofType": {
+                                "kind": "SCALAR",
+                                "name": "ID"
+                            }
+                        }
+                    },
+                    {
+                        "name": "parent",
+                        "type": {
+                            "kind": "OBJECT",
+                            "name": "Parent"
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "Query",
+                "kind": "OBJECT",
+                "fields": [
+                    {
+                        "name": "callme",
+                        "type": {
+                            "name": "Parent",
+                            "kind": "OBJECT"
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}

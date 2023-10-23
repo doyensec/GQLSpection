@@ -2,19 +2,117 @@
 from __future__ import unicode_literals
 from gqlspection.six import python_2_unicode_compatible, text_type
 from gqlspection.utils import pad_string, format_comment
+from gqlspection.GQLField import GQLField
+from gqlspection.GQLTypeProxy import GQLTypeProxy
+import copy
+
+
+# TODO: Figure out if it's better to split this monstrosity in two classes
+@python_2_unicode_compatible
+class QueryBuilder(object):
+    def __init__(self, query, indent=4):
+        # Used for building the query string
+        self.indent = indent
+        self.lines = []
+        self.level = 0
+        # Used for holding the stack of subqueries to be processed (to avoid recursion)
+        self.stack = [query]
+        # Is this the last level of depth? If so, comment out the rest of the query at this level
+        self.max_depth = query.max_depth
+
+    # String building methods
+    def add_line(self, line):
+        initial = '#' if self.last_leg else ''
+        if line:
+            self.lines.append(' ' * self.indent * self.level + line)
+
+    def add_lines(self, lines):
+        for line in lines:
+            self.add_line(line)
+
+    # If this is the last level of depth, comment out the current line (field name) and place {} on the same line
+    def open_brace(self):
+        leaf_achieved = self.last_leg and (not len(self.lines) or '...' not in self.lines[-1])
+        symbol = '{}' if leaf_achieved else '{'
+
+        if self.lines:
+            self.lines[-1] += ' ' + symbol
+        else:
+            self.add_line(symbol)
+
+        if leaf_achieved:
+            # Place '#' at the first non-space character of the last line
+            self.lines[-1] = ' ' * self.indent * self.level + '#' + self.lines[-1].lstrip()
+        else:
+            self.level += 1
+
+            # TODO: Separation of concerns anyone?
+            # Schedule a closing brace to be printed after all subfields are processed
+            self.schedule_close_brace()
+
+    def close_brace(self):
+        self.level -= 1
+        self.add_line('}')
+
+    def add_field(self, field, args=None):
+        line = field
+        if args:
+            line += '(' + ', '.join(f'{k}: {v}' for k, v in args.items()) + ')'
+        self.add_line(line)
+
+    def build(self):
+        return '\n'.join(self.lines)
+
+    # Stack management
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        item = None
+        while not item:
+            if not self.stack:
+                raise StopIteration
+
+            item = self.stack.pop()
+
+            # None signals a closing brace
+            if item is None:
+                self.close_brace()
+
+        return item
+
+    @property
+    def last_leg(self):
+        return self.level >= self.max_depth
+
+    def schedule_close_brace(self):
+        self.stack.append(None)
+
+    def schedule(self, items):
+        self.stack.extend(reversed(items))
 
 
 @python_2_unicode_compatible
 class GQLSubQuery(object):
     field       = None
     name        = ''
-    depth       = 4
+    indent      = 4
+    max_depth   = 4
+    depth       = 1
+    union       = None
 
-    def __init__(self, field, depth=4):
+    def __init__(self, field, indent = 4, max_depth = 4, current_depth = 1, union=None):
         # type: (GQLField, int) -> None
         self.field        = field
         self.name         = field.name
-        self.depth        = depth - 1
+        self.indent       = indent
+        self.max_depth    = max_depth
+        self.depth        = current_depth
+        self.union        = union
+
+    @property
+    def depth_limit_reached(self):
+        return self.depth >= self.max_depth
 
     def __repr__(self):
         return self.to_string()
@@ -46,21 +144,27 @@ class GQLSubQuery(object):
         return ['{name}: {description}'.format(name=arg.name, description=arg.description)
                 for arg in self.field.args if arg.description]
 
+    @property
+    def name_and_args(self):
+        return self.name + self._render_arguments(' ')
+
     def _format_comment(self, text):
         """Concatenate text with arguments if they exist and format it as a comment."""
         args = self._describe_arguments()
-        if not args:
-            # If there are no arguments, just return the main description
-            return format_comment(text) if text else ''
+        if args:
+            # If there are arguments, add a colon to the main description and list the arguments
+            # as a bulleted list
+            if text and text[-1] not in ('.', '!', '?', ':', ';'):
+                text += ':'
 
-        # If there are arguments, add a colon to the main description and list the arguments
-        # as a bulleted list
-        if text and text[-1] not in ('.', '!', '?', ':', ';'):
-            text += ':'
-
-        for arg in args:
-            text += '\n - ' + arg
+            for arg in args:
+                text += '\n - ' + arg
         return format_comment(text) if text else ''
+
+    @property
+    def current_padding(self):
+        # max_depth and indent are set per query, but each subquery has its own effective depth
+        return self.depth * self.indent
 
     @property
     def _field_description(self):
@@ -80,27 +184,12 @@ class GQLSubQuery(object):
 
     @property
     def _description(self):
+        """Raw description of the field or type, without formatting."""
         return self._field_description or self._type_description
 
     @property
     def description(self):
-        return self._format_comment(self._description)
-
-    # FIXME: pad parameter in this function isn't used as described in comments, figure out if it's even necessary
-    def to_string(self, pad=4):
-        """Generate a string representation.
-
-        'pad' parameter defines number of space characters to use for indentation. Special values:
-        'pad=0'    generates minimized query (oneliner without comments).
-        'pad=None' generates super-optimized query where spaces are omitted as much as possible
-        """
-        # whitespace characters collapse when query gets minimized
-        SPACE, NEWLINE, PADDING = self._indent(pad)
-
-        # Handle a simple type like scalar or enum (no curly braces)
-        # In these cases return field_name(potential: arguments, if: any)\n
-        # TODO: The comments below could be aligned for better readability, but it's not trivial to do as lines
-        # are parsed one by one and comments are added as they are encountered
+        """Description of the field or type, formatted as a comment, appropriate for type and indentation level."""
         if self.field.kind.kind == 'ENUM':
             if self._description:
                 description = '(enum) ' + self._description
@@ -111,69 +200,68 @@ class GQLSubQuery(object):
                 description += ':'
             for enum in self.field.type.enums:
                 description += '\n - ' + text_type(enum)
-            return format_comment(description) + NEWLINE + self.name + self._render_arguments(SPACE) + NEWLINE
+            return self._format_comment(description)
+
         if self.field.type.kind.is_builtin_scalar:
-            # Builtin scalars like INT, STRING, etc. always have description at type level, but it's boring, so only
-            # add comment if there's an explicit field description
-            if self.field_description:
-                args = self._render_arguments(SPACE)
-                if args:
-                    # If there are arguments, show the description above the field name
-                    return self.field_description + NEWLINE + self.name + self._render_arguments(SPACE) + NEWLINE
-                # Otherwise show the description as an inline comment
-                return self.name + self._render_arguments(SPACE) + ' ' + self.field_description + NEWLINE
-            return self.name + self._render_arguments(SPACE) + NEWLINE
-        elif self.field.type.kind.is_leaf:
-            # Other leaf types (I think only custom scalars are left?) - field
-            # level description takes precedence over type level
-            if self.description:
-                return self.name + self._render_arguments(SPACE) + ' ' + self.description + NEWLINE
-            return self.name + self._render_arguments(SPACE) + NEWLINE
-        # Handle a complicated field type involving curly braces
+            # Don't add a comment for builtin scalars, they are boring
+            return self._format_comment(self._field_description)
 
-        # Handle a Union
-        if self.field.kind.kind == 'UNION':
-            first_line = self.name + self._render_arguments(SPACE) + SPACE + '{' + NEWLINE
+        return self._format_comment(self._description)
 
-            middle = ''
-            for union in self.field.type.unions:
-                union_first_line = '... on ' + union.name + SPACE + '{' + NEWLINE
+    def subquery(self, field):
+        """Create a subquery for the given field."""
+        if isinstance(field, GQLField):
+            return GQLSubQuery(field, indent=self.indent, max_depth=self.max_depth, current_depth=self.depth + 1)
+        elif isinstance(field, GQLTypeProxy):
+            return GQLSubQuery(self.field, indent=self.indent, max_depth=self.max_depth, current_depth=self.depth + 1, union=field)
 
-                union_middle_lines = '__typename' + NEWLINE
-                for field in union.fields:
-                    subquery = GQLSubQuery(field, depth=self.depth + 1)
-                    union_middle_lines += NEWLINE.join(subquery.to_string(pad).splitlines()) + NEWLINE
-                union_middle_lines = pad_string(union_middle_lines, pad)
+    # TODO: A hacky way to handle unions, figure out a better way later
+    def subunion(self, union):
+        """Create a subquery for the given union."""
+        query = copy.deepcopy(self)
+        query.union = union
+        return query
 
-                union_last_line = '}' + NEWLINE
-                middle += union_first_line + union_middle_lines + union_last_line
-            middle = pad_string(middle, pad)
+    def to_string(self, pad=4):
+        """Generate a string representation of the GraphQL query, iteratively."""
+        self.builder = QueryBuilder(self, pad)
 
-            last_line = '}' + NEWLINE
+        for query in self.builder:
+            # Union handling is a bit hacky, but it works
+            if query.union:
+                self.builder.add_line('... on ' + query.union.name)
+                self.builder.open_brace()
+                self.builder.add_line('__typename')
+                self.builder.schedule([query.subquery(field) for field in query.union.fields])
+                continue
 
-            return first_line + middle + last_line
+            # Print out description and field name
+            description_lines = query.description.splitlines()
 
-        # Did we reach the depth limit?
-        if self.depth < 0:
-            if pad:
-                # Write a comment to hint at the absent fields not included due to reached depth limit
-                return '#' + SPACE + self.name + self._render_arguments(SPACE) + ' {}' + NEWLINE
+            if len(description_lines) == 1 and query.field.type.kind.is_leaf:
+                # Inline comment for a leaf type, like a scalar or enum, assuming description fits in a single line
+                self.builder.add_line(query.name_and_args + ' ' + query.description)
             else:
-                # Minimized query, no comments
-                return ''
+                # Multiline comment precedes the field name
+                self.builder.add_lines(description_lines)
+                self.builder.add_field(query.name_and_args)
 
-        # Initiate recursion
-        first_line = self.name + self._render_arguments(SPACE) + SPACE + '{' + NEWLINE
+            # A complicated type, like an object or union - open a curly brace and iterate over subfields
+            if not query.field.type.kind.is_leaf:
+                # Opens a curly brace and schedules a closing brace to be printed after all subfields are processed
+                self.builder.open_brace()
 
-        middle_lines = ''
-        for field in self.field.type.fields:
-            subquery = GQLSubQuery(field, depth=self.depth)
-            middle_lines += NEWLINE.join(subquery.to_string(pad).splitlines()) + NEWLINE
-        middle_lines = pad_string(middle_lines, pad)
+                if query.depth_limit_reached:
+                    # If we reached the depth limit, don't add any subfields
+                    continue
 
-        last_line = '}' + NEWLINE
+                # Add subfields
+                if query.field.kind.kind == 'UNION':
+                    self.builder.schedule([query.subquery(union) for union in query.field.type.unions])
 
-        if pad:
-            if self.description:
-                return self.description + NEWLINE + first_line + middle_lines + last_line
-        return first_line + middle_lines + last_line
+                else:
+                #if query.field.kind.kind == 'OBJECT':
+                    self.builder.schedule([query.subquery(field) for field in query.field.type.fields])
+
+
+        return self.builder.build()

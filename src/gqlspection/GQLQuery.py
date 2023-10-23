@@ -64,7 +64,7 @@ class GQLQuery(object):
             if not field.name:
                 log.warning("Skipped a field because it does not have a name.")
                 continue
-            subquery = gqlspection.GQLSubQuery(field, depth=self.depth)
+            subquery = gqlspection.GQLSubQuery(field, max_depth=self.depth, current_depth=0)
             middle_lines += NEWLINE.join(subquery.to_string(pad).splitlines()) + NEWLINE
         middle_lines = pad_string(middle_lines, pad)
 
