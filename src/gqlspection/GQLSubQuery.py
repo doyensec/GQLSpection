@@ -80,6 +80,9 @@ class QueryBuilder(object):
 
         return item
 
+    def next(self):
+        return self.__next__()
+
     @property
     def last_leg(self):
         return self.level >= self.max_depth
