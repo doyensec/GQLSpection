@@ -217,13 +217,6 @@ class GQLSubQuery(object):
         elif isinstance(field, GQLTypeProxy):
             return GQLSubQuery(self.field, indent=self.indent, max_depth=self.max_depth, current_depth=self.depth + 1, union=field)
 
-    # TODO: A hacky way to handle unions, figure out a better way later
-    def subunion(self, union):
-        """Create a subquery for the given union."""
-        query = copy.deepcopy(self)
-        query.union = union
-        return query
-
     def to_string(self, pad=4):
         """Generate a string representation of the GraphQL query, iteratively."""
         self.builder = QueryBuilder(self, pad)
