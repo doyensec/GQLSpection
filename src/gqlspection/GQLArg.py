@@ -1,9 +1,11 @@
 # coding: utf-8
 from __future__ import unicode_literals
 from gqlspection.six import ensure_text, text_type
+from gqlspection.utils.tools import cache_str_repr
 import gqlspection
 
 
+@cache_str_repr
 class GQLArg(object):
     name         = ''
     kind         = None

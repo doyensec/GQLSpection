@@ -54,6 +54,12 @@ class GQLTypeKind(object):
         self.name = ensure_text(name)
         self.kind = kind
         self.modifiers = modifiers or []
+        self._is_builtin_scalar = None
+        self._is_leaf = None
+        self._is_final = None
+        self.isbs = None
+        self.isl = None
+        self.isf = None
 
     @staticmethod
     def from_json(typedef):
@@ -87,12 +93,30 @@ class GQLTypeKind(object):
 
     @property
     def is_builtin_scalar(self):
-        return self.name in self.builtin_scalars
+        value = self._is_builtin_scalar
+        if value is not None:
+            return value
+
+        value = self.name in self.builtin_scalars
+        self._is_builtin_scalar = value
+        return value
 
     @property
     def is_leaf(self):
-        return self.kind in self.leaf_types
+        value = self._is_leaf
+        if value is not None:
+            return value
+
+        value = self.kind in self.leaf_types
+        self._is_leaf = value
+        return value
 
     @property
     def is_final(self):
-        return self.is_leaf or self.is_builtin_scalar
+        value = self._is_final
+        if value is not None:
+            return value
+
+        value = self.is_leaf or self.is_builtin_scalar
+        self._is_final = value
+        return value

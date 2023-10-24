@@ -141,3 +141,23 @@ def query_introspection(url, headers=None, include_metadata=False, request_fn=No
     # None of the introspection queries were successful
     log.warning("Introspection seems disabled for this endpoint: '%s'.", url)
     raise Exception("Introspection seems disabled for this endpoint: '%s'." % url)
+
+
+def cache_str_repr(cls):
+    """A class decorator that caches the __str__ and __repr__ methods."""
+
+    def cached_method(method_func, cache_attribute):
+        """Inner decorator to apply caching to a method."""
+        def wrapper(self):
+            cache_value = getattr(self, cache_attribute, None)
+            if cache_value is None:
+                cache_value = method_func(self)
+                setattr(self, cache_attribute, cache_value)
+            return cache_value
+        return wrapper
+
+    # Apply caching to the __str__ and __repr__ methods
+    cls.__str__ = cached_method(cls.__str__, "__cachedstrings__str__")
+    cls.__repr__ = cached_method(cls.__repr__, "__cachedstrings__repr__")
+
+    return cls

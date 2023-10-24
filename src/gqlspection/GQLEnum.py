@@ -1,8 +1,10 @@
 # coding: utf-8
 from __future__ import unicode_literals
 from gqlspection.six import ensure_text
+from gqlspection.utils.tools import cache_str_repr
 
 
+@cache_str_repr
 class GQLEnum(object):
     name = ''
     description = ''

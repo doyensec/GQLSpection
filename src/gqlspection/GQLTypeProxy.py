@@ -2,52 +2,25 @@
 from __future__ import unicode_literals
 from gqlspection import log
 from gqlspection.six import ensure_text
-import gqlspection
-
 
 class GQLTypeProxy(object):
-    name = ''
-    schema = None
-    _upstream = None
-    max_depth = 4
-
+    """A proxy for GQLType that allows for lazy loading of nested objects."""
     def __init__(self, name, schema):
         # type: (str, GQLSchema) -> None
         self.name = ensure_text(name)
         self.schema = schema
-
-    @property
-    def upstream(self):
-        # use cached value if present
-        if self._upstream:
-            return self._upstream
-
-        if self.name in self.schema.types:
-            self._upstream = self.schema.types[self.name]
-            return self._upstream
-        else:
-            # TODO: expose this somehow through cli
-            if 'DEBUGGER' in globals():
-                import pdb
-                pdb.set_trace()
-                log.debug("Found an unknown type: '%s'. At this time following types are present in schema:", self.name)
-                for t in self.schema.types:
-                    log.debug("    %s(%s) [%s]" % (type(t.name), t.name, t.kind.kind))
-
-            raise Exception("GQLTypeProxy: type '%s' not defined" % self.name)
-
-    def _proxy_getattr(self, item, levels):
-        if levels >= self.max_depth:
-            raise Exception("GQLTypeProxy: reached the recursion limit!")
-        return getattr(self, item)
+        self.upstream = None
 
     def __getattr__(self, item):
-        proxy = getattr(self.upstream, '_proxy_getattr', None)
-        if proxy:
-            # nested object detected, pass execution to proxy
-            return proxy(item, 0)
+        # Once the attribute is accessed, we load the actual object from the schema and replace attribute with strong reference
+        upstream = self.upstream
+        if upstream is None:
+            try:
+                upstream = self.schema.types[self.name]
+                self.upstream = upstream
+            except KeyError:
+                raise AttributeError("GQLTypeProxy: type '%s' not defined" % self.name)
+        upstream_item = getattr(upstream, item)
 
-        return getattr(self.upstream, item)
-
-    def __dir__(self):
-        return super(gqlspection.GQLType, self.upstream).__dir__()
+        setattr(self, item, upstream_item)  # Setting attribute to the proxy
+        return upstream_item
