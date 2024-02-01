@@ -5,13 +5,6 @@ from gqlspection.utils import format_comment
 from gqlspection.GQLField import GQLField
 from gqlspection.GQLTypeProxy import GQLTypeProxy
 
-import sys
-if sys.platform.startswith('java'):
-    from multiprocessing.dummy import Pool as ThreadPool
-else:
-    from multiprocessing import Pool as ThreadPool
-
-
 # TODO: Figure out if it's better to split this monstrosity in two classes
 class QueryBuilder(object):
     def __init__(self, query, indent=4):
@@ -226,67 +219,6 @@ class GQLSubQuery(object):
             return GQLSubQuery(self.field, indent=self.indent, max_depth=self.max_depth, current_depth=depth, union=field)
 
     def to_string(self, pad=4, query=None):
-        """Generate a string representation of the GraphQL query, iteratively."""
-        if query is None:
-            query = self
-
-        builder = QueryBuilder(query, pad)
-
-        for query in builder:
-            # Union handling is a bit hacky, but it works
-            if query.union:
-                builder.add_line('... on ' + query.union.name)
-                builder.open_brace()
-                builder.add_line('__typename')
-                builder.schedule([query.subquery(field) for field in query.union.fields])
-                continue
-
-            # Print out description and field name
-            description_lines = query.description.splitlines()
-
-            if len(description_lines) == 1 and query.field.type.kind.is_leaf:
-                # Inline comment for a leaf type, like a scalar or enum, assuming description fits in a single line
-                builder.add_line(query.name_and_args + ' ' + query.description)
-            else:
-                # Multiline comment precedes the field name
-                builder.add_lines(description_lines)
-                builder.add_field(query.name_and_args)
-
-            # A complicated type, like an object or union - open a curly brace and iterate over subfields
-            if not query.field.type.kind.is_leaf:
-                # Opens a curly brace and schedules a closing brace to be printed after all subfields are processed
-                builder.open_brace()
-
-                if query.depth_limit_reached:
-                    # If we reached the depth limit, don't add any subfields
-                    continue
-
-                # Add subfields
-                if query.field.kind.kind == 'UNION':
-                    builder.schedule([query.subquery(union) for union in query.field.type.unions])
-
-                else:
-                #if query.field.kind.kind == 'OBJECT':
-                    builder.schedule([query.subquery(field) for field in query.field.type.fields])
-        return builder.build()
-
-    def to_string2(self, pad=None, num_threads=4):
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        pool = ThreadPool(num_threads)
-        queries = [self.subquery(field, depth=1) for field in self.field.type.fields]
-        results = pool.map(self.to_string_naive, queries)
-        pool.close()
-        pool.join()
-        return '\n'.join(results)
-
-
-    def to_string_naive(self, query=None, pad=4):
-        print("NAIVE")
-        print("NAIVE")
-        print("NAIVE")
-        print("NAIVE")
-        print("NAIVE")
-        print("NAIVE")
         """Generate a string representation of the GraphQL query, iteratively."""
         if query is None:
             query = self
