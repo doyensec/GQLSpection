@@ -9,7 +9,6 @@ query IntrospectionQuery {
         # For some reason, spec does not force queryType[name] to be String!, but I don't think it can be null.
         queryType {
             name
-            }
         }
         # 'mutationType' can be null if there are no mutations.
         mutationType {
