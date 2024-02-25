@@ -92,7 +92,10 @@ class GQLSchema(object):
         if extra_headers:
             headers.update(extra_headers)
 
-        result = requests.post(url, json={'query': get_introspection_query(minimize=minimize)}, headers=headers).json()
+        query = get_introspection_query(minimize=minimize)
+        result = requests.post(url,
+                               json={'query': query},
+                               headers=headers).json()
         if 'errors' in result:
             raise Exception([error['message'] for error in result['errors']])
 

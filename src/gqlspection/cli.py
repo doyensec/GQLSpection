@@ -16,6 +16,9 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 @click.command(context_settings=CONTEXT_SETTINGS)
 @click.option(
+    '-b', '--bearer_token', help="Pass a Bearer token to the request."
+)
+@click.option(
     '-f', '--file', 'file_', help="File with the GraphQL schema (introspection JSON)."
 )
 @click.option(
@@ -42,12 +45,12 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
     '-v', '--verbose', is_flag=True, help="Enable verbose logging."
 )
 def cli(file_=None, url=None, all_queries=False, all_mutations=False, query=None, mutation=None, stuff_to_print=None,
-        verbose=False):
+        verbose=False, bearer_token = None):
     if verbose:
         import logging
         log.logger.setLevel(logging.DEBUG)
     try:
-        run(file_, url, all_queries, all_mutations, query, mutation, stuff_to_print)
+        run(file_, url, all_queries, all_mutations, query, mutation, stuff_to_print, bearer_token)
     except Exception:
         import traceback
         traceback.print_exc()
@@ -56,8 +59,8 @@ def cli(file_=None, url=None, all_queries=False, all_mutations=False, query=None
     sys.exit(0)
 
 
-def run(file_, url, all_queries, all_mutations, query, mutation, stuff_to_print):
-    schema = parse_schema(file_, url)
+def run(file_, url, all_queries, all_mutations, query, mutation, stuff_to_print, bearer_token):
+    schema = parse_schema(file_, url, bearer_token)
 
     if stuff_to_print:
         print_available_stuff(schema, stuff_to_print)
@@ -91,13 +94,16 @@ def run(file_, url, all_queries, all_mutations, query, mutation, stuff_to_print)
             print(schema.generate_mutation(field).str(pad=4))
 
 
-def parse_schema(file_, url):
+def parse_schema(file_, url, bearer_token):
     # Parse GraphQL schema
     if file_:
         response = json.loads(Path(file_).read_text())
         return GQLSchema(json=response)
     elif url:
-        return GQLSchema(url=url)
+        extra_headers = None
+        if bearer_token is not None:
+            extra_headers = {'Authorization' : f"Bearer {bearer_token}"}
+        return GQLSchema(url=url, extra_headers=extra_headers)
     else:
         log.err("Either file or url should be provided.")
         sys.exit(1)
