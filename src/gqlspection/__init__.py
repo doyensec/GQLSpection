@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 from gqlspection.Logger import log, set_log_level
 
+from gqlspection.GQLCycleDetector import GQLCycleDetector
 from gqlspection.GQLArg import GQLArg
 from gqlspection.GQLEnum import GQLEnum
 from gqlspection.GQLField import GQLField
@@ -18,6 +19,7 @@ __all__ = [
     "log",
     "set_log_level",
     "utils",
+    "GQLCycleDetector",
     "GQLArg",
     "GQLEnum",
     "GQLField",

@@ -6,6 +6,7 @@ from gqlspection import log
 import gqlspection
 from gqlspection.utils import query_introspection
 from gqlspection.points_of_interest.POIScanner import POIScanner
+from gqlspection.GQLCycleDetector import GQLCycleDetector
 
 
 class GQLSchema(object):
@@ -141,3 +142,10 @@ class GQLSchema(object):
     def print_points_of_interest(self, depth=3, categories=None, keywords=None):
         poi = self.points_of_interest(depth=depth, categories=categories, keywords=keywords)
         print(self._parse_points_of_interest(poi))
+
+    def detect_cycles(self, depth=100):
+        """Detect cycles in the schema."""
+        detector = GQLCycleDetector(self, depth)
+        detector.detect()
+        detector.print_cycles()
+

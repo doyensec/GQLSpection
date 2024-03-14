@@ -51,30 +51,55 @@ $ gqlspection -f schema.json -m one,two,three
 ### Full help
 
 ```
-$ ./gqlspection -h
 Usage: gqlspection [OPTIONS]
 
+  CLI interface for GraphQL schema introspection tool.
+
 Options:
-  -f, --file TEXT      File with the GraphQL schema (introspection JSON).
-  -u, --url TEXT       URL of the GraphQL endpoint with enabled introspection.
+  -f, --file TEXT            File with the GraphQL schema (introspection
+                             JSON).
 
-  -l, --list TEXT      Parse GraphQL schema and list queries, mutations or
-                       both of them (valid values are: 'queries', 'mutations'
-                       or 'all').
+  -u, --url TEXT             URL of the GraphQL endpoint with enabled
+                             introspection.
 
-  -q, --query TEXT     Only print named queries (argument is a comma-separated
-                       list of query names).
+  -l, --list TEXT            Parse GraphQL schema and list queries, mutations
+                             or both of them (valid values are: 'queries',
+                             'mutations' or 'all').
 
-  -m, --mutation TEXT  Only print named mutations (argument is a comma-
-                       separated list of mutation names).
+  -q, --query TEXT           Only print named queries (argument is a comma-
+                             separated list of query names).
 
-  -Q, --all-queries    Only print queries (by default both queries and
-                       mutations are printed).
+  -m, --mutation TEXT        Only print named mutations (argument is a comma-
+                             separated list of mutation names).
 
-  -M, --all-mutations  Only print mutations (by default both queries and
-                       mutations are printed).
+  -Q, --all-queries          Only print queries (by default both queries and
+                             mutations are printed).
 
-  -h, --help           Show this message and exit.
+  -M, --all-mutations        Only print mutations (by default both queries and
+                             mutations are printed).
+
+  -d, --depth INTEGER        Query depth, limits recursion (default: 4).
+  -p, --poi                  Enable 'Points of Interest' reporting.
+  -P, --poi-categories TEXT  A list of enabled PoI categories: auth,custom_sca
+                             larsdatabase,debugging,deprecated,files,payment,p
+                             ii,privileged
+
+  --poi-depth INTEGER        How deep in the schema to look for PoI (default:
+                             2).
+
+  -c, --cycles               Enable cycle detection.
+  --cycles-depth INTEGER     How deep in the schema to look for cycles
+                             (default: 100).
+
+  -k, --keywords TEXT        Custom keywords for 'Points of Interest'
+                             reporting (comma-separated list).
+
+  -K, --keywords-file TEXT   Custom keywords for 'Points of Interest'
+                             reporting (read from a file).
+
+  -v, --verbose              Enable verbose logging.
+  -g, --debug                Enable debug logging.
+  -h, --help                 Show this message and exit.
 ```
 
 ## Usage of the Python library

@@ -54,6 +54,12 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
     '--poi-depth', default=2, help="How deep in the schema to look for PoI (default: 2)."
 )
 @click.option(
+    '-c', '--cycles', is_flag=True, help="Enable cycle detection."
+)
+@click.option(
+    '--cycles-depth', default=100, help="How deep in the schema to look for cycles (default: 100)."
+)
+@click.option(
     '-k', '--keywords', help="Custom keywords for 'Points of Interest' reporting (comma-separated list)."
 )
 @click.option(
@@ -66,7 +72,8 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
     '-g', '--debug', is_flag=True, help="Enable debug logging."
 )
 def cli(file_=None, url=None, all_queries=False, all_mutations=False, query=None, mutation=None, list_available=None,
-        depth=4, poi=False, poi_categories=None, poi_depth=2, keywords=None, keywords_file=None, verbose=False, debug=False):
+        depth=4, poi=False, poi_categories=None, poi_depth=2, cycles=None, cycles_depth=100,
+        keywords=None, keywords_file=None, verbose=False, debug=False):
     """CLI interface for GraphQL schema introspection tool."""
 
     if verbose:
@@ -85,7 +92,7 @@ def cli(file_=None, url=None, all_queries=False, all_mutations=False, query=None
             poi_categories = poi_categories.split(',')
 
         run(file_, url, all_queries, all_mutations, query, mutation, list_available, depth,
-            poi, poi_categories, poi_depth, keywords, keywords_file)
+            poi, poi_categories, poi_depth, cycles, cycles_depth, keywords, keywords_file)
     except Exception:
         import traceback
         traceback.print_exc()
@@ -95,12 +102,16 @@ def cli(file_=None, url=None, all_queries=False, all_mutations=False, query=None
 
 
 def run(file_, url, all_queries, all_mutations, query, mutation, list_available, depth,
-        points_of_interest, points_of_interest_categories, poi_depth, keywords, keywords_file):
+        points_of_interest, points_of_interest_categories, poi_depth, cycles, cycles_depth, keywords, keywords_file):
     if keywords_file:
         with open(keywords_file) as f:
             keywords = [line.strip() for line in f.readlines()]
 
     schema = parse_schema(file_, url)
+
+    if cycles:
+        schema.detect_cycles(depth=cycles_depth)
+        return
 
     if points_of_interest:
         schema.print_points_of_interest(
