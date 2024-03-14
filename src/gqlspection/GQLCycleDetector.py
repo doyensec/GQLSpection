@@ -10,7 +10,7 @@ class GQLCycleDetector(object):
     """
     def __init__(self, schema, max_depth=100):
         self.schema = schema
-        self.max_depth = max_depth
+        self.max_depth = max_depth if max_depth > 0 else 100
         self.visited = set()
         self.visiting = []
         self.cycles = []
@@ -58,16 +58,17 @@ class GQLCycleDetector(object):
         Returns:
             bool: True if a cycle is detected, False otherwise.
         """
+        if current_depth == self.max_depth:
+            log.error("Max recursion depth reached ({}). Might miss some cycles.".format(current_depth))
+            return False
+
         self.visited.add((field_name, gqltype.name))
         self.visiting.append((field_name, gqltype.name))
 
         for field in gqltype.fields:
             for next_gqltype in self._potential_objects(field.type):
                 if (field.name, next_gqltype.name) not in self.visited:
-                    if current_depth >= self.max_depth:
-                        log.error("Max recursion depth reached ({}). Aborting.".format(current_depth))
-                        return False
-                    if self._detect_cycle(field.name, next_gqltype, current_depth=(current_depth + 1)):
+                    if self._detect_cycle(field.name, next_gqltype, current_depth + 1):
                         return True
                 elif (field.name, next_gqltype.name) in self.visiting:
                     cycle_nodes = self.visiting + [(field.name, next_gqltype.name)]
