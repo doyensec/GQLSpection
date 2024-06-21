@@ -95,7 +95,7 @@ class GQLSchema(object):
 
     def generate_mutation(self, name, depth=4):
         if type(name) == text_type:
-            field = self.query.fields[name]
+            field = self.mutation.fields[name]
         else:
             field = name
         return gqlspection.GQLQuery(self.mutation, 'mutation', fields=[field], depth=depth)
