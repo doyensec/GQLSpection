@@ -18,7 +18,7 @@ GQLSpection is available on PyPI (Python 2.7 and Python 3+ versions are supporte
 Regular installation:
 
 ```bash
-$ pip install gqlspection[cli]
+$ pip install gqlspection
 ```
 
 ## Usage of the CLI tool
