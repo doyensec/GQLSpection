@@ -31,20 +31,22 @@ class GQLCycleDetector(object):
         This method traverses the schema starting from the query and mutation fields
         and detects any cycles in the schema.
         """
-        for field in self.schema.query.fields:
-            log.debug("Looking at query field {}".format(field.name))
-            for gqltype in self._potential_objects(field.type):
-                log.debug("Test type name: {}".format(gqltype.name))
-                self._detect_cycle(field.name, gqltype)
-                self.visiting = []
-                self.visited.clear()
-        for field in self.schema.mutation.fields:
-            log.debug("Looking at mutation field {}".format(field.name))
-            for gqltype in self._potential_objects(field.type):
-                log.debug("Test type name: {}".format(gqltype.name))
-                self._detect_cycle(field.name, gqltype)
-                self.visiting = []
-                self.visited.clear()
+        if self.schema.query:
+            for field in self.schema.query.fields:
+                log.debug("Looking at query field {}".format(field.name))
+                for gqltype in self._potential_objects(field.type):
+                    log.debug("Test type name: {}".format(gqltype.name))
+                    self._detect_cycle(field.name, gqltype)
+                    self.visiting = []
+                    self.visited.clear()
+        if self.schema.mutation:
+            for field in self.schema.mutation.fields:
+                log.debug("Looking at mutation field {}".format(field.name))
+                for gqltype in self._potential_objects(field.type):
+                    log.debug("Test type name: {}".format(gqltype.name))
+                    self._detect_cycle(field.name, gqltype)
+                    self.visiting = []
+                    self.visited.clear()
 
     def _detect_cycle(self, field_name, gqltype, current_depth=0):
         """
